@@ -1,0 +1,4 @@
+#!/bin/sh
+
+source "`dirname $0`/common"
+ls -t1 "${dumps}" | sed -e 's/\.gz$//'

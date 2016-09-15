@@ -1,0 +1,60 @@
+#!/bin/sh
+
+root="${1}"
+base="${root}/.db"
+connection_config="${base}/credentials.cnf"
+dumps="${base}/dumps"
+
+mysqldump=`which mysqldump`
+mysql=`which mysql`
+
+COLOR_NC='\033[0m' # No Color
+COLOR_WHITE='\033[1;37m'
+COLOR_BLACK='\033[0;30m'
+COLOR_BLUE='\033[0;34m'
+COLOR_LIGHT_BLUE='\033[1;34m'
+COLOR_GREEN='\033[0;32m'
+COLOR_LIGHT_GREEN='\033[1;32m'
+COLOR_CYAN='\033[0;36m'
+COLOR_LIGHT_CYAN='\033[1;36m'
+COLOR_RED='\033[0;31m'
+COLOR_LIGHT_RED='\033[1;31m'
+COLOR_PURPLE='\033[0;35m'
+COLOR_LIGHT_PURPLE='\033[1;35m'
+COLOR_BROWN='\033[0;33m'
+COLOR_YELLOW='\033[1;33m'
+COLOR_GRAY='\033[0;30m'
+COLOR_LIGHT_GRAY='\033[0;37m'
+
+user_input()
+{
+  prompt=$1
+  error_msg=$2
+  default=$3
+  allow_empty=$4
+
+  while true; do
+    read -p "${prompt} [${default}]: " answer
+
+    if [ -z "${answer// }" ]; then
+      # if answer is empty...
+
+      if [ ! -z "${default}" ]; then
+        # if a default value has been provided
+        answer=${default}
+        break
+      fi
+
+      if [ ${allow_empty} == 1 ]; then
+        # if we allow empty answers
+        break
+      fi
+
+      echo "${error_msg}"
+    else
+      # answer is not empty
+      break
+    fi
+
+  done
+}

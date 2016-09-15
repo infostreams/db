@@ -1,0 +1,73 @@
+#!/bin/sh
+
+source "`dirname $0`/common"
+
+if [ ! -d "${base}" ]; then
+	mkdir -p "${base}"
+fi
+
+
+if [ ! -d "${dumps}" ]; then
+	mkdir -p "${dumps}"
+fi
+
+
+host="${2}"
+username="${3}"
+password="${4}"
+database="${5}"
+
+write_config()
+{
+  file=$1
+
+  echo "[client]" > "${file}"
+  echo "user = ${username}" >> "${file}"
+  echo "password = ${password}" >> "${file}"
+  echo "database = ${database}" >> "${file}"
+  echo "host = ${host}" >> "${file}"
+
+  chmod 600 "${file}"
+}
+
+if [ "$#" -ne 5 ]; then
+  echo "Usage: db init (hostname) (username) (password) (database)"
+fi
+
+while true; do
+  if [ "$#" -ne 5 ]; then
+
+    echo "\n${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
+    user_input "Database host" "Please provide a database hostname" "127.0.0.1" 0
+    host=${answer}
+
+    user_input "Username" "Please provide a username" "root" 0
+    username=${answer}
+
+    user_input "Password" "Please provide the password for user '${username}'" "" 1
+    password=${answer}
+
+    user_input "Database" "Please provide the name of a database" "" 0
+    database=${answer}
+  else
+    # remove host, user, password etc from command line arguments
+    shift 4
+  fi
+
+  tmp="${connection_config}.tmp"
+  write_config "${tmp}"
+  "${mysql}" --defaults-extra-file=${tmp} -e"quit" >/dev/null
+  code="${?}"
+  rm "${tmp}"
+
+
+  if [ "${code}" -eq 1 ]; then
+    echo "${COLOR_RED}Could not connect to database. Please try again.${COLOR_NC}"
+    continue
+  else
+    echo "${COLOR_GREEN}Successfully connected to database. Writing config.${COLOR_NC}"
+  fi
+
+  write_config "${connection_config}"
+  exit 1
+done

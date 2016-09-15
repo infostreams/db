@@ -1,0 +1,12 @@
+#!/bin/sh
+
+source "`dirname $0`/common"
+file="${dumps}/${2}"
+
+if [ -f "${file}" ]; then
+	rm "${file}"
+	exit 0
+else
+	echo "Cannot remove ${COLOR_LIGHT_BLUE}${2}${COLOR_NC} - file does not exist"
+	exit 1
+fi

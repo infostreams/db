@@ -1,0 +1,27 @@
+#!/bin/sh
+
+option="${1}";
+shift
+db_dir=$(cd "$(dirname "$0")/."; pwd);
+
+me=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
+
+case ${option} in
+	list)
+		${me}/bin/db-list "${db_dir}"
+		;;
+	init)
+		${me}/bin/db-init "${db_dir}" "$@"
+		;;
+	snapshot)
+		${me}/bin/db-snapshot "${db_dir}" "$@"
+		;;
+	restore)
+		${me}/bin/db-restore "${db_dir}" "$@"
+		;;
+	remove)
+		${me}/bin/db-remove "${db_dir}" "$@"
+		;;
+	*)
+		echo "USAGE: db (init|list|snapshot|restore|remove)"
+esac
