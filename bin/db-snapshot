@@ -3,9 +3,12 @@
 source "`dirname $0`/common"
 
 identifier=${2}
+ts=$(date +%Y%m%d-%H%M%S)
 
 if [[ -z "${identifier// }" ]]; then
-  identifier=$(date +%Y%m%d-%H%M%S)
+  identifier=${ts}
+else
+  identifier=${ts}-${identifier}
 fi
 
 file="${dumps}/${identifier}.gz"
