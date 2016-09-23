@@ -6,9 +6,12 @@ db_dir=$(cd "$(dirname "$0")/."; pwd);
 
 me=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
 
+# for synching database CONTENTS http://www.cri.ensmp.fr/~coelho/pg_comparator/pg_comparator.html
+# for synching database STRUCTURE http://mmatuson.github.io/SchemaSync/
+
 case ${option} in
 	list)
-		${me}/bin/db-list "${db_dir}"
+		${me}/bin/db-list "${db_dir}" "$@"
 		;;
 	init)
 		${me}/bin/db-init "${db_dir}" "$@"
