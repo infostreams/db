@@ -3,12 +3,12 @@
 source "`dirname $0`/common"
 
 if [ ! -d "${base}" ]; then
-	mkdir -p "${base}"
+  mkdir -p "${base}"
 fi
 
 
 if [ ! -d "${dumps}" ]; then
-	mkdir -p "${dumps}"
+  mkdir -p "${dumps}"
 fi
 
 
@@ -72,5 +72,5 @@ while true; do
   fi
 
   write_config "${connection_config}" "${database_file}"
-  exit 1
+  exit 0
 done

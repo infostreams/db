@@ -5,7 +5,7 @@ source "`dirname $0`/common"
 identifier=${2}
 
 if [[ -z "${identifier// }" ]]; then
-	identifier=$(date +%Y%m%d-%H%M%S)
+  identifier=$(date +%Y%m%d-%H%M%S)
 fi
 
 file="${dumps}/${identifier}.gz"
@@ -16,3 +16,4 @@ database=`cat "${database_file}"`
 $("${mysqldump}" ${connection_details} ${options} ${database} | gzip > "${file}")
 
 echo "Created snapshot ${COLOR_LIGHT_BLUE}${identifier}${COLOR_NC}"
+exit 0

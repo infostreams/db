@@ -6,9 +6,9 @@ connection_details="--defaults-extra-file=${connection_config}"
 database=`cat "${database_file}"`
 
 if [ -f "${file}" ]; then
-	$(gunzip < "${file}" | "${mysql}" ${connection_details} ${database})
-	exit 0
+  $(gunzip < "${file}" | "${mysql}" ${connection_details} ${database})
+  exit 0
 else
-	echo "Cannot restore ${COLOR_LIGHT_BLUE}${2}${COLOR_NC} - file does not exist"
-	exit 1
+  echo "Cannot restore ${COLOR_LIGHT_BLUE}${2}${COLOR_NC} - file does not exist"
+  exit 1
 fi

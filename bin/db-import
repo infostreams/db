@@ -1,0 +1,30 @@
+#!/bin/sh
+
+source "`dirname $0`/common"
+file=${2}
+
+if [[ -z "${file// }" ]]; then
+  echo "USAGE: db import <path to .sql or .sql.gz file>"
+  exit 1
+fi
+
+connection_details="--defaults-extra-file=${connection_config}"
+database=`cat "${database_file}"`
+
+if [ -f "${file}" ]; then
+  file "${file}" | grep gzip > /dev/null
+  code="${?}"
+
+  if [ "${code}" -eq 0 ]; then
+    # this is a gzipped file
+    $(gunzip < "${file}" | "${mysql}" ${connection_details} ${database})
+  else
+    # this is a regular .sql file
+    $("${mysql}" ${connection_details} ${database} < "${file}")
+  fi
+
+  exit 0
+else
+  echo "Cannot import ${COLOR_LIGHT_BLUE}${file}${COLOR_NC} - file does not exist"
+  exit 1
+fi

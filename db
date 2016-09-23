@@ -9,22 +9,11 @@ me=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0
 # for synching database CONTENTS http://www.cri.ensmp.fr/~coelho/pg_comparator/pg_comparator.html
 # for synching database STRUCTURE http://mmatuson.github.io/SchemaSync/
 
-case ${option} in
-	list)
-		${me}/bin/db-list "${db_dir}" "$@"
-		;;
-	init)
-		${me}/bin/db-init "${db_dir}" "$@"
-		;;
-	snapshot)
-		${me}/bin/db-snapshot "${db_dir}" "$@"
-		;;
-	restore)
-		${me}/bin/db-restore "${db_dir}" "$@"
-		;;
-	remove)
-		${me}/bin/db-remove "${db_dir}" "$@"
-		;;
-	*)
-		echo "USAGE: db (init|list|snapshot|restore|remove)"
-esac
+cmd="${me}/bin/db-${option}"
+if [[ -f ${cmd} ]]; then
+  ${cmd} "${db_dir}" "$@"
+else
+  commands=$(ls -1 ${me}/bin | grep "db-" | cut -d "-" -f 2 | paste -s -d "|" -)
+  echo "USAGE: db (${commands})"
+  exit 1
+fi
