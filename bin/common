@@ -3,6 +3,7 @@
 root="${1}"
 base="${root}/.db"
 connection_config="${base}/credentials.cnf"
+database_file="${base}/database"
 dumps="${base}/dumps"
 
 mysqldump=`which mysqldump`

@@ -3,9 +3,10 @@
 source "`dirname $0`/common"
 file="${dumps}/${2}.gz"
 connection_details="--defaults-extra-file=${connection_config}"
+database=`cat "${database_file}"`
 
 if [ -f "${file}" ]; then
-	$(gunzip < "${file}" | "${mysql}" ${connection_details})
+	$(gunzip < "${file}" | "${mysql}" ${connection_details} ${database})
 	exit 0
 else
 	echo "Cannot restore ${COLOR_LIGHT_BLUE}${2}${COLOR_NC} - file does not exist"

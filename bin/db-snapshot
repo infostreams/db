@@ -1,8 +1,18 @@
 #!/bin/sh
 
 source "`dirname $0`/common"
-file="${dumps}/${2}.gz"
+
+identifier=${2}
+
+if [[ -z "${identifier// }" ]]; then
+	identifier=$(date +%Y%m%d-%H%M%S)
+fi
+
+file="${dumps}/${identifier}.gz"
 options="--opt -B --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"
+database=`cat "${database_file}"`
 
-$("${mysqldump}" ${options} ${connection_details} | gzip > "${file}")
+$("${mysqldump}" ${connection_details} ${options} ${database} | gzip > "${file}")
+
+echo "Created snapshot ${COLOR_LIGHT_BLUE}${identifier}${COLOR_NC}"

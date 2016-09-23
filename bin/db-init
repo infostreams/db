@@ -20,14 +20,17 @@ database="${5}"
 write_config()
 {
   file=$1
+  db_file=$2
 
   echo "[client]" > "${file}"
   echo "user = ${username}" >> "${file}"
   echo "password = ${password}" >> "${file}"
-  echo "database = ${database}" >> "${file}"
   echo "host = ${host}" >> "${file}"
 
   chmod 600 "${file}"
+
+  echo "${database}" >> "${db_file}"
+  chmod 600 "${db_file}"
 }
 
 if [ "$#" -ne 5 ]; then
@@ -55,7 +58,7 @@ while true; do
   fi
 
   tmp="${connection_config}.tmp"
-  write_config "${tmp}"
+  write_config "${tmp}" "${database_file}"
   "${mysql}" --defaults-extra-file=${tmp} -e"quit" >/dev/null
   code="${?}"
   rm "${tmp}"
@@ -68,6 +71,6 @@ while true; do
     echo "${COLOR_GREEN}Successfully connected to database. Writing config.${COLOR_NC}"
   fi
 
-  write_config "${connection_config}"
+  write_config "${connection_config}" "${database_file}"
   exit 1
 done
