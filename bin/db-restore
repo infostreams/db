@@ -1,13 +1,32 @@
 #!/bin/sh
-
-source "`dirname $0`/common"
+bin=$(dirname $0)
+source "${bin}/common"
 file="${dumps}/${2}.gz"
 connection_details="--defaults-extra-file=${connection_config}"
 database=`cat "${database_file}"`
+extract_sql=${bin}/vendor/extract_sql/extract_sql.pl
+
+if [ "$#" -lt 2 ]; then
+  echo "SYNTAX: db restore <snapshot> [table_1] [table_2] [...] [table_n]"
+  echo "Restores a snapshot, or part of a snapshot"
+  exit 1
+fi
 
 if [ -f "${file}" ]; then
-  $(gunzip < "${file}" | "${mysql}" ${connection_details} ${database})
-  exit 0
+  if [ "$#" -gt 2 ]; then
+    snapshot=${2}
+    shift 2
+    for table in "$@"; do
+      $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} ${database})
+      echo "Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    done
+    exit 1
+  else
+    $(gunzip < "${file}" | "${mysql}" ${connection_details} ${database})
+    echo "Restored snapshot ${COLOR_LIGHT_BLUE}${2}${COLOR_NC}"
+    exit 0
+  fi
+
 else
   echo "Cannot restore ${COLOR_LIGHT_BLUE}${2}${COLOR_NC} - file does not exist"
   exit 1
