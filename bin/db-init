@@ -29,7 +29,7 @@ write_config()
 
   chmod 600 "${file}"
 
-  echo "${database}" >> "${db_file}"
+  echo "${database}" > "${db_file}"
   chmod 600 "${db_file}"
 }
 
