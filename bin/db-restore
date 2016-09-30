@@ -23,7 +23,7 @@ fi
 if [ "$#" -gt 3 ]; then
   shift 3
   for table in "$@"; do
-    $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} ${database})
+    $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}")
     code="${?}"
 
     if [ "${code}" -eq 0 ]; then

@@ -17,7 +17,7 @@ options="--opt -B --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"
 database=`cat "${database_file}"`
 
-$("${mysqldump}" ${connection_details} ${options} ${database} | gzip > "${file}")
+$("${mysqldump}" ${connection_details} ${options} "${database}" | gzip > "${file}")
 
 echo "${colored_identifier}Created snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}"
 exit 0
