@@ -3,7 +3,7 @@
 bin=$(dirname $0)
 source "${bin}/include/all"
 
-file=${2}
+file=${3}
 
 if [[ -z "${file// }" ]]; then
   echo "USAGE: db import [identifier] <path to .sql or .sql.gz file>"

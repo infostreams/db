@@ -8,10 +8,11 @@ if [ ! -d "${repository}" ]; then
 fi
 
 identifier="${2}"
-host="${3}"
-username="${4}"
-password="${5}"
-database="${6}"
+ssh="${3}"
+host="${4}"
+username="${5}"
+password="${6}"
+database="${7}"
 
 write_config()
 {
@@ -20,6 +21,7 @@ write_config()
   _credentials="${_config}/credentials.cnf"
   _db_file="${_config}/database"
   _dumps="${repository}/${_identifier}/dumps"
+  _ssh_config="${_config}/ssh.cnf"
 
   if [ ! -d "${_config}" ]; then
     mkdir -p "${_config}"
@@ -38,34 +40,71 @@ write_config()
 
   echo "${database}" > "${_db_file}"
   chmod 600 "${_db_file}"
+
+  if [[ ! -z "${ssh// }" ]]; then
+    echo "${ssh}" > "${_ssh_config}"
+  else
+    if [[ -f "${_ssh_config}" ]]; then
+      rm "${_ssh_config}"
+    fi
+  fi
+}
+
+test_config()
+{
+  _identifier=$1
+  _config="${repository}/${_identifier}/config/"
+  _credentials="${_config}credentials.cnf"
+  _ssh_config="${_config}/ssh.cnf"
+  _db_file="${_config}/database"
+  if [[ -f "${_ssh_config}" ]]; then
+    where=`cat "${_ssh_config}"`
+    _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
+    _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
+    _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
+    _database=$(cat "${_db_file}")
+    cmd="mysql --user=\"$_user\" --host=\"$_host\" --password=\"$_pass\" -e\"quit\" $_database"
+    ssh ${where} "${cmd}"
+    return "${?}"
+  else
+    "${mysql}" --defaults-extra-file="${_credentials}" -e"quit" >/dev/null
+    return "${?}"
+  fi
 }
 
 delete_config()
 {
+  # I don't like 'rm -rf' for these cases
   _identifier=$1
   _config="${repository}/${_identifier}/config"
   _credentials="${_config}/credentials.cnf"
   _db_file="${_config}/database"
   _dumps="${repository}/${_identifier}/dumps"
+  _ssh_config="${_config}/ssh.cnf"
 
   rm "${_credentials}"
   rm "${_db_file}"
+  if [ -f "${_ssh_config}" ]; then
+    rm "${_ssh_config}"
+  fi
   rmdir "${_config}"
   rmdir "${_dumps}"
   rmdir "${repository}/${_identifier}"
 }
 
-
-if [ "$#" -ne 6 ]; then
-  echo "Usage: db init (identifier) (hostname) (username) (password) (database)"
+if [ "$#" -ne 7 ]; then
+  echo "Usage: db init (identifier) (ssh) (hostname) (username) (password) (database)"
 fi
 
 while true; do
-  if [ "$#" -ne 6 ]; then
+  if [ "$#" -ne 7 ]; then
 
     echo "\n${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
     user_input "Identifier" "Please provide a meaningful name to refer to this database, such as 'local', 'development', 'staging', ..." "local" 0
     identifier=${answer}
+
+    user_input "Ssh connection details, e.g. user@hostname.com" "Please provide the username and host of the remote server" "" 1
+    ssh=${answer}
 
     user_input "Database host" "Please provide a database hostname" "127.0.0.1" 0
     host=${answer}
@@ -80,14 +119,13 @@ while true; do
     database=${answer}
   else
     # remove host, user, password etc from command line arguments
-    shift 5
+    shift 6
   fi
 
   ts=$(date +%Y%m%d-%H%M%S)
   test="test-${ts}"
   write_config "${test}"
-  testcredentials="${repository}/${test}/config/credentials.cnf"
-  "${mysql}" --defaults-extra-file=${testcredentials} -e"quit" >/dev/null
+  test_config "${test}"
   code="${?}"
   delete_config "${test}"
 

@@ -29,9 +29,14 @@ source "${bin}/include/colors"
 
 identifier="local"
 if [ "$#" -ge 1 ]; then
-  if [[ -d "${project_root}/.db/${1}/config" ]]; then
+  if [ "${subcommand}" == "init" ]; then
     identifier="${1}"
     shift
+  else
+    if [[ -d "${project_root}/.db/${1}/config" ]]; then
+      identifier="${1}"
+      shift
+    fi
   fi
 fi
 

@@ -20,20 +20,19 @@ if [ ! -f "${file}" ]; then
   exit 1
 fi
 
-if [ "$#" -gt 3 ]; then
-  shift 3
-  for table in "$@"; do
-    $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}")
-    code="${?}"
+restore_table() {
+  table=$1
+  $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}")
+  code="${?}"
 
-    if [ "${code}" -eq 0 ]; then
-      echo "${colored_identifier}Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
-    else
-      echo "${colored_identifier}Could not restore table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
-    fi
-  done
-  exit 1
-else
+  if [ "${code}" -eq 0 ]; then
+    echo "${colored_identifier}Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+  else
+    echo "${colored_identifier}Could not restore table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+  fi
+}
+
+restore_snapshot() {
   gunzip < "${file}" | "${mysql}" ${connection_details} "$database"
   code="${?}"
 
@@ -44,5 +43,15 @@ else
     echo "${colored_identifier}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     exit ${code}
   fi
+}
+
+if [ "$#" -gt 3 ]; then
+  shift 3
+  for table in "$@"; do
+    restore_table "${table}"
+  done
+  exit 1
+else
+  restore_snapshot
 fi
 

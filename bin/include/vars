@@ -13,6 +13,8 @@ config="${repository}/${identifier}/config/"
 database_file="${config}/database"
 connection_config="${config}/credentials.cnf"
 
+ssh_config="${config}/ssh.cnf"
+
 dumps="${repository}/${identifier}/dumps"
 
 colored_identifier="[${COLOR_YELLOW}${identifier}${COLOR_NC}] "
