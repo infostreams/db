@@ -16,7 +16,7 @@ if [ "$#" -lt 3 ]; then
 fi
 
 if [ ! -f "${file}" ]; then
-  echo "${colored_identifier}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot ${file} does not exist"
+  echo "${colored_identifier}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
   exit 1
 fi
 
