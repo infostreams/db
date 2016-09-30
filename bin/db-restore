@@ -1,46 +1,48 @@
 #!/bin/sh
+
 bin=$(dirname $0)
-source "${bin}/common"
-file="${dumps}/${2}.gz"
+source "${bin}/include/all"
+
+snapshot=${3}
+file="${dumps}/${snapshot}.gz"
 connection_details="--defaults-extra-file=${connection_config}"
 database=`cat "${database_file}"`
-extract_sql=${bin}/vendor/extract_sql/extract_sql.pl
+extract_sql="${bin}/vendor/extract_sql/extract_sql.pl"
 
-if [ "$#" -lt 2 ]; then
-  echo "SYNTAX: db restore <snapshot> [table_1] [table_2] [...] [table_n]"
+if [ "$#" -lt 3 ]; then
+  echo "SYNTAX: db restore [identifier] <snapshot> [table_1] [table_2] [...] [table_n]"
   echo "Restores a snapshot, or part of a snapshot"
   exit 1
 fi
 
-if [ -f "${file}" ]; then
-  if [ "$#" -gt 2 ]; then
-    snapshot=${2}
-    shift 2
-    for table in "$@"; do
-      $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} ${database})
-      code="${?}"
+if [ ! -f "${file}" ]; then
+  echo "${colored_identifier}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot ${file} does not exist"
+  exit 1
+fi
 
-      if [ "${code}" -eq 0 ]; then
-        echo "Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
-      else
-        echo "Could not restore table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
-      fi
-    done
-    exit 1
-  else
-    gunzip < "${file}" | "${mysql}" ${connection_details} "$database"
+if [ "$#" -gt 3 ]; then
+  shift 3
+  for table in "$@"; do
+    $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} ${database})
     code="${?}"
 
     if [ "${code}" -eq 0 ]; then
-      echo "Restored snapshot ${COLOR_LIGHT_BLUE}${2}${COLOR_NC}"
-      exit 0
+      echo "${colored_identifier}Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     else
-      echo "Could not restore snapshot ${COLOR_LIGHT_BLUE}${2}${COLOR_NC}"
-      exit ${code}
+      echo "${colored_identifier}Could not restore table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     fi
-  fi
-
-else
-  echo "Could not restore snapshot ${COLOR_LIGHT_BLUE}${2}${COLOR_NC} - file does not exist"
+  done
   exit 1
+else
+  gunzip < "${file}" | "${mysql}" ${connection_details} "$database"
+  code="${?}"
+
+  if [ "${code}" -eq 0 ]; then
+    echo "${colored_identifier}Restored snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    exit 0
+  else
+    echo "${colored_identifier}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    exit ${code}
+  fi
 fi
+

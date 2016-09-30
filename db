@@ -1,14 +1,15 @@
 #!/bin/sh
 
-option="${1}";
+subcommand="${1}";
 shift
 
-db_dir=$(pwd)
-while [[ ! -d "${db_dir}/.db" ]]; do
+# Try to figure out what the project root directory is
+project_root=$(pwd)
+while [[ ! -d "${project_root}/.db" ]]; do
 
-  if [ "${db_dir}" = "/" ]; then
-    if [ "${option}" = "init" ]; then
-      db_dir=$(pwd)
+  if [ "${project_root}" = "/" ]; then
+    if [ "${subcommand}" == "init" ]; then
+      project_root=$(pwd)
       break
     else
       echo "fatal: Not a db repository (or any of the parent directories). Please run 'db init'.";
@@ -16,19 +17,32 @@ while [[ ! -d "${db_dir}/.db" ]]; do
     fi
   fi
 
-  db_dir=$(cd "${db_dir}/.." && pwd)
+  project_root=$(cd "${project_root}/.." && pwd)
 done
 
-me=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
+# Get the directory where the main script (this one) is installed
+installation_root=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
+
+# Load the colors
+bin="${installation_root}/bin"
+source "${bin}/include/colors"
+
+identifier="local"
+if [ "$#" -ge 1 ]; then
+  if [[ -d "${project_root}/.db/${1}/config" ]]; then
+    identifier="${1}"
+    shift
+  fi
+fi
 
 # for synching database CONTENTS http://www.cri.ensmp.fr/~coelho/pg_comparator/pg_comparator.html
 # for synching database STRUCTURE http://mmatuson.github.io/SchemaSync/ or http://search.cpan.org/dist/MySQL-Diff/bin/mysqldiff
 
-cmd="${me}/bin/db-${option}"
+cmd="${installation_root}/bin/db-${subcommand}"
 if [[ -f ${cmd} ]]; then
-  ${cmd} "${db_dir}" "$@"
+  ${cmd} "${project_root}" "${identifier}" "$@"
 else
-  commands=$(ls -1 ${me}/bin | grep "db-" | cut -d "-" -f 2 | paste -s -d "|" -)
+  commands=$(ls -1 ${installation_root}/bin | grep "db-" | cut -d "-" -f 2 | paste -s -d "|" -)
   echo "USAGE: db (${commands})"
   exit 1
 fi

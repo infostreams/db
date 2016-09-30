@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Get the directory where the main script is installed
+installation_root=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
+
+# Get the project directory, i.e. the directory where the repository lives
+project_root="${1}"
+identifier="${2}"
+
+repository="${project_root}/.db"
+
+config="${repository}/${identifier}/config/"
+database_file="${config}/database"
+connection_config="${config}/credentials.cnf"
+
+dumps="${repository}/${identifier}/dumps"
+
+colored_identifier="[${COLOR_YELLOW}${identifier}${COLOR_NC}] "
+
+mysqldump=`which mysqldump`
+mysql=`which mysql`

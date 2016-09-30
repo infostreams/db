@@ -1,46 +1,72 @@
 #!/bin/sh
 
-source "`dirname $0`/common"
+bin=$(dirname $0)
+source "${bin}/include/all"
 
-if [ ! -d "${base}" ]; then
-  mkdir -p "${base}"
+if [ ! -d "${repository}" ]; then
+  mkdir -p "${repository}"
 fi
 
-
-if [ ! -d "${dumps}" ]; then
-  mkdir -p "${dumps}"
-fi
-
-
-host="${2}"
-username="${3}"
-password="${4}"
-database="${5}"
+identifier="${2}"
+host="${3}"
+username="${4}"
+password="${5}"
+database="${6}"
 
 write_config()
 {
-  file=$1
-  db_file=$2
+  _identifier=$1
+  _config="${repository}/${_identifier}/config"
+  _credentials="${_config}/credentials.cnf"
+  _db_file="${_config}/database"
+  _dumps="${repository}/${_identifier}/dumps"
 
-  echo "[client]" > "${file}"
-  echo "user = ${username}" >> "${file}"
-  echo "password = ${password}" >> "${file}"
-  echo "host = ${host}" >> "${file}"
+  if [ ! -d "${_config}" ]; then
+    mkdir -p "${_config}"
+  fi
 
-  chmod 600 "${file}"
+  if [ ! -d "${_dumps}" ]; then
+    mkdir -p "${_dumps}"
+  fi
 
-  echo "${database}" > "${db_file}"
-  chmod 600 "${db_file}"
+  echo "[client]" > "${_credentials}"
+  echo "user = ${username}" >> "${_credentials}"
+  echo "password = ${password}" >> "${_credentials}"
+  echo "host = ${host}" >> "${_credentials}"
+
+  chmod 600 "${_credentials}"
+
+  echo "${database}" > "${_db_file}"
+  chmod 600 "${_db_file}"
 }
 
-if [ "$#" -ne 5 ]; then
-  echo "Usage: db init (hostname) (username) (password) (database)"
+delete_config()
+{
+  _identifier=$1
+  _config="${repository}/${_identifier}/config"
+  _credentials="${_config}/credentials.cnf"
+  _db_file="${_config}/database"
+  _dumps="${repository}/${_identifier}/dumps"
+
+  rm "${_credentials}"
+  rm "${_db_file}"
+  rmdir "${_config}"
+  rmdir "${_dumps}"
+  rmdir "${repository}/${_identifier}"
+}
+
+
+if [ "$#" -ne 6 ]; then
+  echo "Usage: db init (identifier) (hostname) (username) (password) (database)"
 fi
 
 while true; do
-  if [ "$#" -ne 5 ]; then
+  if [ "$#" -ne 6 ]; then
 
     echo "\n${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
+    user_input "Identifier" "Please provide a meaningful name to refer to this database, such as 'local', 'development', 'staging', ..." "local" 0
+    identifier=${answer}
+
     user_input "Database host" "Please provide a database hostname" "127.0.0.1" 0
     host=${answer}
 
@@ -54,15 +80,16 @@ while true; do
     database=${answer}
   else
     # remove host, user, password etc from command line arguments
-    shift 4
+    shift 5
   fi
 
-  tmp="${connection_config}.tmp"
-  write_config "${tmp}" "${database_file}"
-  "${mysql}" --defaults-extra-file=${tmp} -e"quit" >/dev/null
+  ts=$(date +%Y%m%d-%H%M%S)
+  test="test-${ts}"
+  write_config "${test}"
+  testcredentials="${repository}/${test}/config/credentials.cnf"
+  "${mysql}" --defaults-extra-file=${testcredentials} -e"quit" >/dev/null
   code="${?}"
-  rm "${tmp}"
-
+  delete_config "${test}"
 
   if [ "${code}" -eq 1 ]; then
     echo "${COLOR_RED}Could not connect to database. Please try again.${COLOR_NC}"
@@ -71,6 +98,6 @@ while true; do
     echo "${COLOR_GREEN}Successfully connected to database. Writing config.${COLOR_NC}"
   fi
 
-  write_config "${connection_config}" "${database_file}"
+  write_config "${identifier}"
   exit 0
 done

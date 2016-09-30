@@ -1,5 +1,8 @@
 #!/bin/sh
 
-source "`dirname $0`/common"
+bin=$(dirname $0)
+source "${bin}/include/all"
+
+echo "${colored_identifier}"
 ls -t1 "${dumps}" | sed -e 's/\.gz$//'
 exit 0

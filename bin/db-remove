@@ -1,12 +1,16 @@
 #!/bin/sh
 
-source "`dirname $0`/common"
-file="${dumps}/${2}"
+bin=$(dirname $0)
+source "${bin}/include/all"
+snapshot="${3}"
+
+file="${dumps}/${snapshot}.gz"
 
 if [ -f "${file}" ]; then
   rm "${file}"
+  echo "${colored_identifier}Removed snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
   exit 0
 else
-  echo "Cannot remove ${COLOR_LIGHT_BLUE}${2}${COLOR_NC} - file does not exist"
+  echo "${colored_identifier}Cannot remove ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
   exit 1
 fi

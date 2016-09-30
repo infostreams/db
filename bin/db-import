@@ -1,10 +1,12 @@
 #!/bin/sh
 
-source "`dirname $0`/common"
+bin=$(dirname $0)
+source "${bin}/include/all"
+
 file=${2}
 
 if [[ -z "${file// }" ]]; then
-  echo "USAGE: db import <path to .sql or .sql.gz file>"
+  echo "USAGE: db import [identifier] <path to .sql or .sql.gz file>"
   exit 1
 fi
 
@@ -23,8 +25,9 @@ if [ -f "${file}" ]; then
     $("${mysql}" ${connection_details} ${database} < "${file}")
   fi
 
+  echo "${colored_identifier}Imported ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
   exit 0
 else
-  echo "Cannot import ${COLOR_LIGHT_BLUE}${file}${COLOR_NC} - file does not exist"
+  echo "${colored_identifier}Cannot import ${COLOR_LIGHT_BLUE}${file}${COLOR_NC} - file does not exist"
   exit 1
 fi

@@ -1,0 +1,34 @@
+#!/bin/sh
+
+user_input()
+{
+  prompt=$1
+  error_msg=$2
+  default=$3
+  allow_empty=$4
+
+  while true; do
+    read -p "${prompt} [${default}]: " answer
+
+    if [ -z "${answer// }" ]; then
+      # if answer is empty...
+
+      if [ ! -z "${default}" ]; then
+        # if a default value has been provided
+        answer=${default}
+        break
+      fi
+
+      if [ ${allow_empty} == 1 ]; then
+        # if we allow empty answers
+        break
+      fi
+
+      echo "${error_msg}"
+    else
+      # answer is not empty
+      break
+    fi
+
+  done
+}

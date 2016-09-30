@@ -1,22 +1,23 @@
 #!/bin/sh
 
-source "`dirname $0`/common"
+bin=$(dirname $0)
+source "${bin}/include/all"
 
-identifier=${2}
+msg=${3}
 ts=$(date +%Y%m%d-%H%M%S)
 
-if [[ -z "${identifier// }" ]]; then
-  identifier=${ts}
+if [[ -z "${msg// }" ]]; then
+  filename=${ts}
 else
-  identifier=${ts}-${identifier}
+  filename=${ts}-${msg}
 fi
 
-file="${dumps}/${identifier}.gz"
+file="${dumps}/${filename}.gz"
 options="--opt -B --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"
 database=`cat "${database_file}"`
 
 $("${mysqldump}" ${connection_details} ${options} ${database} | gzip > "${file}")
 
-echo "Created snapshot ${COLOR_LIGHT_BLUE}${identifier}${COLOR_NC}"
+echo "${colored_identifier}Created snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}"
 exit 0
