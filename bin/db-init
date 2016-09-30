@@ -103,7 +103,7 @@ while true; do
     user_input "Identifier" "Please provide a meaningful name to refer to this database, such as 'local', 'development', 'staging', ..." "local" 0
     identifier=${answer}
 
-    user_input "Ssh connection details, e.g. user@hostname.com" "Please provide the username and host of the remote server" "" 1
+    user_input "Ssh login, e.g. user@hostname.com" "Please provide the username and host of the remote server" "" 1
     ssh=${answer}
 
     user_input "Database host" "Please provide a database hostname" "127.0.0.1" 0
