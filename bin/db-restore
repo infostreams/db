@@ -10,7 +10,7 @@ database=`cat "${database_file}"`
 extract_sql="${bin}/vendor/extract_sql/extract_sql.pl"
 
 if [ "$#" -lt 3 ]; then
-  echo "SYNTAX: db restore [identifier] <snapshot> [table_1] [table_2] [...] [table_n]"
+  echo "SYNTAX: db restore [server] <snapshot> [table_1] [table_2] [...] [table_n]"
   echo "Restores a snapshot, or part of a snapshot"
   exit 1
 fi
