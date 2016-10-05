@@ -3,6 +3,27 @@
 bin=$(dirname $0)
 source "${bin}/include/all"
 
-echo "${colored_identifier}"
-ls -t1 "${dumps}" | sed -e 's/\.gz$//'
-exit 0
+what="dumps"
+if [ "$#" -ge 3 ]; then
+  what="${3}"
+fi
+
+if [ "${3}" == "--help" ]; then
+  echo "SYNTAX: ${COLOR_LIGHT_BLUE}db list servers${COLOR_NC} or ${COLOR_LIGHT_BLUE}db list [server]${COLOR_NC}"
+  echo "Prints a list of recorded database dumps"
+  exit 1
+fi
+
+case ${what} in
+  dumps)
+    echo "${colored_identifier}"
+    ls -t1 "${dumps}" | sed -e 's/\.gz$//'
+    exit 0
+    ;;
+
+  servers)
+    ls -t1 "${repository}"
+    exit 0
+    ;;
+esac
+
