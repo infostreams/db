@@ -7,7 +7,7 @@ if [ ! -d "${repository}" ]; then
   mkdir -p "${repository}"
 fi
 
-identifier="${2}"
+server="${2}"
 ssh="${3}"
 host="${4}"
 username="${5}"
@@ -16,11 +16,11 @@ database="${7}"
 
 write_config()
 {
-  _identifier=$1
-  _config="${repository}/${_identifier}/config"
+  _server=$1
+  _config="${repository}/${_server}/config"
   _credentials="${_config}/credentials.cnf"
   _db_file="${_config}/database"
-  _dumps="${repository}/${_identifier}/dumps"
+  _dumps="${repository}/${_server}/dumps"
   _ssh_config="${_config}/ssh.cnf"
 
   if [ ! -d "${_config}" ]; then
@@ -52,8 +52,8 @@ write_config()
 
 test_config()
 {
-  _identifier=$1
-  _config="${repository}/${_identifier}/config/"
+  _server=$1
+  _config="${repository}/${_server}/config/"
   _credentials="${_config}credentials.cnf"
   _ssh_config="${_config}/ssh.cnf"
   _db_file="${_config}/database"
@@ -75,11 +75,11 @@ test_config()
 delete_config()
 {
   # I don't like 'rm -rf' for these cases
-  _identifier=$1
-  _config="${repository}/${_identifier}/config"
+  _server=$1
+  _config="${repository}/${_server}/config"
   _credentials="${_config}/credentials.cnf"
   _db_file="${_config}/database"
-  _dumps="${repository}/${_identifier}/dumps"
+  _dumps="${repository}/${_server}/dumps"
   _ssh_config="${_config}/ssh.cnf"
 
   rm "${_credentials}"
@@ -89,7 +89,7 @@ delete_config()
   fi
   rmdir "${_config}"
   rmdir "${_dumps}"
-  rmdir "${repository}/${_identifier}"
+  rmdir "${repository}/${_server}"
 }
 
 if [ "$#" -ne 7 ]; then
@@ -100,8 +100,8 @@ while true; do
   if [ "$#" -ne 7 ]; then
 
     echo "\n${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
-    user_input "Identifier" "Please provide a meaningful name to refer to this database, such as 'local', 'development', 'staging', ..." "local" 0
-    identifier=${answer}
+    user_input "Server" "Please provide a meaningful server name to refer to this database, such as 'local', 'development', 'staging', ..." "local" 0
+    server=${answer}
 
     user_input "Ssh login, e.g. user@hostname.com" "Please provide the username and host of the remote server" "" 1
     ssh=${answer}
@@ -136,6 +136,6 @@ while true; do
     echo "${COLOR_GREEN}Successfully connected to database. Writing config.${COLOR_NC}"
   fi
 
-  write_config "${identifier}"
+  write_config "${server}"
   exit 0
 done
