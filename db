@@ -27,14 +27,15 @@ installation_root=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sy
 bin="${installation_root}/bin"
 source "${bin}/include/colors"
 
-identifier="local"
+# Default server shortname is the first one in the .db folder
+shortname=$(ls -d ${project_root}/.db/*/ | head -n 1 | rev | cut -f 2 -d '/' | rev)
 if [ "$#" -ge 1 ]; then
   if [ "${subcommand}" == "init" ]; then
-    identifier="${1}"
+    shortname="${1}"
     shift
   else
     if [[ -d "${project_root}/.db/${1}/config" ]]; then
-      identifier="${1}"
+      shortname="${1}"
       shift
     fi
   fi
@@ -45,7 +46,7 @@ fi
 
 cmd="${installation_root}/bin/db-${subcommand}"
 if [[ -f ${cmd} ]]; then
-  ${cmd} "${project_root}" "${identifier}" "$@"
+  ${cmd} "${project_root}" "${shortname}" "$@"
 else
   commands=$(ls -1 ${installation_root}/bin | grep "db-" | cut -d "-" -f 2 | paste -s -d "|" -)
   echo "USAGE: db (${commands})"
