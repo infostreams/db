@@ -16,7 +16,7 @@ fi
 
 case ${what} in
   dumps)
-    echo "${colored_identifier}"
+    echo "${colored_shortname}"
     ls -t1 "${dumps}" | sed -e 's/\.gz$//'
     exit 0
     ;;

@@ -16,7 +16,7 @@ if [ "$#" -lt 3 ]; then
 fi
 
 if [ ! -f "${file}" ]; then
-  echo "${colored_identifier}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
+  echo "${colored_shortname}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
   exit 1
 fi
 
@@ -26,9 +26,9 @@ restore_table() {
   code="${?}"
 
   if [ "${code}" -eq 0 ]; then
-    echo "${colored_identifier}Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    echo "${colored_shortname}Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
   else
-    echo "${colored_identifier}Could not restore table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    echo "${colored_shortname}Could not restore table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
   fi
 }
 
@@ -37,10 +37,10 @@ restore_snapshot() {
   code="${?}"
 
   if [ "${code}" -eq 0 ]; then
-    echo "${colored_identifier}Restored snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    echo "${colored_shortname}Restored snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     exit 0
   else
-    echo "${colored_identifier}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    echo "${colored_shortname}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     exit ${code}
   fi
 }

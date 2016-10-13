@@ -25,9 +25,9 @@ if [ -f "${file}" ]; then
     $("${mysql}" ${connection_details} ${database} < "${file}")
   fi
 
-  echo "${colored_identifier}Imported ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
+  echo "${colored_shortname}Imported ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
   exit 0
 else
-  echo "${colored_identifier}Cannot import ${COLOR_LIGHT_BLUE}${file}${COLOR_NC} - file does not exist"
+  echo "${colored_shortname}Cannot import ${COLOR_LIGHT_BLUE}${file}${COLOR_NC} - file does not exist"
   exit 1
 fi

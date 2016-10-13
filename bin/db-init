@@ -93,14 +93,14 @@ delete_config()
 }
 
 if [ "$#" -ne 7 ]; then
-  echo "Usage: db init (identifier) (ssh) (hostname) (username) (password) (database)"
+  echo "Usage: db init (server shortname) (ssh) (hostname) (username) (password) (database)"
 fi
 
 while true; do
   if [ "$#" -ne 7 ]; then
 
     echo "\n${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
-    user_input "Server" "Please provide a meaningful server name to refer to this database, such as 'local', 'development', 'staging', ..." "local" 0
+    user_input "Server shortname" "Please provide a meaningful server name to refer to this database, such as 'local', 'development', 'staging', ..." "localhost" 0
     server=${answer}
 
     user_input "Ssh login, e.g. user@hostname.com" "Please provide the username and host of the remote server" "" 1

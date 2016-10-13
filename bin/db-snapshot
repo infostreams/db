@@ -19,5 +19,5 @@ database=`cat "${database_file}"`
 
 $("${mysqldump}" ${connection_details} ${options} "${database}" | gzip > "${file}")
 
-echo "${colored_identifier}Created snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}"
+echo "${colored_shortname}Created snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}"
 exit 0

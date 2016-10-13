@@ -17,7 +17,7 @@ ssh_config="${config}/ssh.cnf"
 
 dumps="${repository}/${identifier}/dumps"
 
-colored_identifier="[${COLOR_YELLOW}${identifier}${COLOR_NC}] "
+colored_shortname="[${COLOR_YELLOW}${identifier}${COLOR_NC}] "
 
 mysqldump=`which mysqldump`
 mysql=`which mysql`
