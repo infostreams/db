@@ -3,6 +3,7 @@
 bin=$(dirname $0)
 source "${bin}/include/all"
 
+shortname=${2}
 snapshot=${3}
 file="${dumps}/${snapshot}.gz"
 connection_details="--defaults-extra-file=${connection_config}"
@@ -22,7 +23,23 @@ fi
 
 restore_table() {
   table=$1
-  $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}")
+
+  _config="${repository}/${shortname}/config/"
+  _credentials="${_config}credentials.cnf"
+  _ssh_config="${_config}/ssh.cnf"
+  _db_file="${_config}/database"
+  if [[ -f "${_ssh_config}" ]]; then
+    where=`cat "${_ssh_config}"`
+    _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
+    _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
+    _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
+    _database=$(cat "${_db_file}")
+
+    gunzip < "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+  else
+    $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}")
+  fi
+
   code="${?}"
 
   if [ "${code}" -eq 0 ]; then
@@ -33,7 +50,21 @@ restore_table() {
 }
 
 restore_snapshot() {
-  gunzip < "${file}" | "${mysql}" ${connection_details} "$database"
+  _config="${repository}/${shortname}/config/"
+  _credentials="${_config}credentials.cnf"
+  _ssh_config="${_config}/ssh.cnf"
+  _db_file="${_config}/database"
+  if [[ -f "${_ssh_config}" ]]; then
+    where=`cat "${_ssh_config}"`
+    _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
+    _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
+    _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
+    _database=$(cat "${_db_file}")
+
+    gunzip < "${file}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+  else
+    gunzip < "${file}" | "${mysql}" ${connection_details} "$database"
+  fi
   code="${?}"
 
   if [ "${code}" -eq 0 ]; then

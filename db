@@ -27,8 +27,11 @@ installation_root=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sy
 bin="${installation_root}/bin"
 source "${bin}/include/colors"
 
-# Default server shortname is the first one in the .db folder
-shortname=$(ls -d ${project_root}/.db/*/ | head -n 1 | rev | cut -f 2 -d '/' | rev)
+# Default server shortname is the first one in the .db folder, or "localhost" if that folder doesn't exist yet
+shortname="localhost"
+if [[ -d "${project_root}/.db" ]]; then
+  shortname=$(ls -d ${project_root}/.db/*/ | head -n 1 | rev | cut -f 2 -d '/' | rev)
+fi
 if [ "$#" -ge 1 ]; then
   if [ "${subcommand}" == "init" ]; then
     shortname="${1}"

@@ -63,8 +63,7 @@ test_config()
     _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
     _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
     _database=$(cat "${_db_file}")
-    cmd="mysql --user=\"$_user\" --host=\"$_host\" --password=\"$_pass\" -e\"quit\" $_database"
-    ssh ${where} "${cmd}"
+    ssh ${where} "mysql --user=\"$_user\" --host=\"$_host\" --password=\"$_pass\" -e\"quit\" $_database"
     return "${?}"
   else
     "${mysql}" --defaults-extra-file="${_credentials}" -e"quit" >/dev/null
@@ -100,10 +99,10 @@ while true; do
   if [ "$#" -ne 7 ]; then
 
     echo "\n${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
-    user_input "Server shortname" "Please provide a meaningful server name to refer to this database, such as 'local', 'development', 'staging', ..." "localhost" 0
+    user_input "Server shortname" "Please provide a meaningful server name to refer to this database, such as 'local', 'development', 'staging', ..." "${server}" 0
     server=${answer}
 
-    user_input "Ssh login, e.g. user@hostname.com" "Please provide the username and host of the remote server" "" 1
+    user_input "Ssh login, e.g. user@hostname.com" "Please provide the username and host of the remote server" "${ssh}" 1
     ssh=${answer}
 
     user_input "Database host" "Please provide a database hostname" "127.0.0.1" 0
