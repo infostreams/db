@@ -6,7 +6,7 @@ source "${bin}/include/all"
 file=${3}
 
 if [[ -z "${file// }" ]]; then
-  echo "USAGE: db import [identifier] <path to .sql or .sql.gz file>"
+  echo "USAGE: db import [server shortname] <path to .sql or .sql.gz file>"
   exit 1
 fi
 
@@ -19,9 +19,11 @@ if [ -f "${file}" ]; then
 
   if [ "${code}" -eq 0 ]; then
     # this is a gzipped file
+    echo "${colored_shortname}Starting import of gzipped sql file ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
     $(gunzip < "${file}" | "${mysql}" ${connection_details} ${database})
   else
     # this is a regular .sql file
+    echo "${colored_shortname}Starting import of regular sql file ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
     $("${mysql}" ${connection_details} ${database} < "${file}")
   fi
 
