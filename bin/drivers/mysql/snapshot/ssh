@@ -1,0 +1,37 @@
+#!/bin/sh
+
+bin=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0))
+source "${bin}/include/all"
+
+shortname=${2}
+msg=${3}
+ts=$(date +%Y%m%d-%H%M%S)
+
+if [[ -z "${msg// }" ]]; then
+  filename=${ts}
+else
+  filename=${ts}-${msg}
+fi
+
+file="${dumps}/${filename}.gz"
+database=`cat "${database_file}"`
+
+options="--opt -B --add-drop-database"
+connection_details="--defaults-extra-file=${connection_config}"
+
+
+_config="${repository}/${shortname}/config/"
+_credentials="${_config}credentials.cnf"
+_ssh_config="${_config}/ssh.cnf"
+_db_file="${_config}/database"
+
+where=`cat "${_ssh_config}"`
+_user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
+_pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
+_host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
+_database=$(cat "${_db_file}")
+
+ssh ${where} "nice -n 19 sh -c 'mysqldump --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database} | gzip'" > "${file}"
+
+echo "${colored_shortname}Created snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}"
+exit 0

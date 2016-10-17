@@ -1,0 +1,216 @@
+#!/bin/sh
+bin=$(dirname $0)
+source "${bin}/include/all"
+
+shift 2
+subcommand="${1}"
+server="${2}"
+connectiontype="${3}"
+ssh="${4}"
+host="${5}"
+username="${6}"
+password="${7}"
+database="${8}"
+
+
+write_config()
+{
+  _server=$1
+  _config="${repository}/${_server}/config"
+  _dumps="${repository}/${_server}/dumps"
+
+  _credentials="${_config}/credentials.cnf"
+  _db_file="${_config}/database"
+  _connectiontype_file="${_config}/connectiontype"
+  _ssh_config="${_config}/ssh.cnf"
+  _pma_config="${_config}/phpmyadmin.cnf"
+
+  if [ ! -d "${_config}" ]; then
+    mkdir -p "${_config}"
+  fi
+
+  if [ ! -d "${_dumps}" ]; then
+    mkdir -p "${_dumps}"
+  fi
+
+  echo "[client]" > "${_credentials}"
+  echo "user = ${username}" >> "${_credentials}"
+  echo "password = ${password}" >> "${_credentials}"
+  echo "host = ${host}" >> "${_credentials}"
+
+  chmod 600 "${_credentials}"
+
+  echo "${database}" > "${_db_file}"
+  chmod 600 "${_db_file}"
+
+  echo "${connectiontype}" > "${_connectiontype_file}"
+
+  if [[ -f "${_ssh_config}" ]]; then
+    rm "${_ssh_config}"
+  fi
+
+  if [[ -f "${_pma_config}" ]]; then
+    rm "${_pma_config}"
+  fi
+
+  case $connectiontype in
+    direct)
+      ;;
+
+    ssh)
+      echo "${ssh}" > "${_ssh_config}"
+      chmod 600 "${_ssh_config}"
+      ;;
+
+    phpmyadmin)
+      echo "url=${phpmyadmin_url}" >> "${_pma_config}"
+      echo "http_user=${phpmyadmin_http_user}" >> "${_pma_config}"
+      echo "http_pass=${phpmyadmin_http_pass}" >> "${_pma_config}"
+      chmod 600 "${_pma_config}"
+      ;;
+  esac
+}
+
+test_config()
+{
+  _server=$1
+
+  ${bin}/../db test $_server
+}
+
+delete_config()
+{
+  return
+  # I don't like 'rm -rf' for these cases (but perhaps I should reconsider)
+  _server=$1
+  _config="${repository}/${_server}/config"
+  _credentials="${_config}/credentials.cnf"
+  _db_file="${_config}/database"
+  _dumps="${repository}/${_server}/dumps"
+  _connectiontype_file="${_config}/connectiontype"
+  _ssh_config="${_config}/ssh.cnf"
+  _pma_config="${_config}/phpmyadmin.cnf"
+
+  rm "${_credentials}"
+  rm "${_db_file}"
+  if [ -f "${_ssh_config}" ]; then
+    rm "${_ssh_config}"
+  fi
+  if [ -f "${_pma_config}" ]; then
+    rm "${_pma_config}"
+  fi
+  rm "${_connectiontype_file}"
+  rmdir "${_config}"
+  rm -rf "${_dumps}"
+  rmdir "${repository}/${_server}"
+}
+
+add_server()
+{
+  while true; do
+    if [ "$#" -ne 7 ]; then
+
+      echo "\n${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
+      user_input "Server shortname" "Please provide a meaningful server name to refer to this database, such as 'localhost', 'development', 'staging', ..." "${server}" 0
+      server=${answer}
+
+      user_input "Connection type, e.g. direct, ssh, or phpmyadmin" "Please specify how you connect to this database" "${connectiontype}" 0
+      connectiontype=${answer}
+
+      case ${connectiontype} in
+        direct)
+          ;;
+
+        ssh)
+          user_input "SSH login, e.g. user@hostname.com" "Please provide the username and host of the remote server" "${ssh}" 0
+          ssh=${answer}
+          ;;
+
+        phpmyadmin)
+          user_input "URL of phpMyAdmin" "Please provide the login URL of phpMyAdmin" "${phpmyadmin_url}" 0
+          phpmyadmin_url=${answer}
+
+          echo "\nIf you use HTTP Basic Authentication in an attempt to increase the security of your"
+          echo "phpMyAdmin installation, then please input the username and password here."
+          user_input "HTTP username" "Please provide the HTTP username" "${phpmyadmin_http_user}" 1
+          phpmyadmin_http_user=${answer}
+          user_input "HTTP password" "Please provide the HTTP password" "${phpmyadmin_http_password}" 1
+          phpmyadmin_http_password=${answer}
+          ;;
+      esac
+
+      echo "Please provide the database host. For connection types SSH and phpMyAdmin, this is probably 127.0.0.1".
+      user_input "Database host" "Please provide a database hostname" "127.0.0.1" 0
+      host=${answer}
+
+      user_input "Username" "Please provide a username" "root" 0
+      username=${answer}
+
+      user_input "Password" "Please provide the password for user '${username}'" "" 1
+      password=${answer}
+
+      user_input "Database" "Please provide the name of a database" "" 0
+      database=${answer}
+    else
+      # remove host, user, password etc from command line arguments
+      shift 6
+    fi
+
+    ts=$(date +%Y%m%d-%H%M%S)
+    test="test-${ts}"
+    write_config "${test}"
+    test_config "${test}"
+    code="${?}"
+    delete_config "${test}"
+
+    if [ "${code}" -eq 1 ]; then
+      echo "${COLOR_RED}Could not connect to database. Please try again.${COLOR_NC}"
+      continue
+    else
+      echo "${COLOR_GREEN}Successfully connected to database. Writing config.${COLOR_NC}"
+    fi
+
+    write_config "${server}"
+    exit 0
+  done
+}
+
+rm_server()
+{
+  _server=$1
+  if [ -d "${repository}/${_server}/config" ]; then
+    delete_config $_server
+    echo "${COLOR_GREEN}Succesfully removed server configuration \"${_server}\".${COLOR_NC}"
+  else
+    echo "${COLOR_RED}Server configuration \"${_server}\" does not exist.${COLOR_NC}"
+  fi
+}
+
+list_servers()
+{
+  ls -1d ${repository}/*/ | rev | cut -d '/' -f 2 | rev
+}
+
+if [ "${subcommand}" != "add" ] && [ "${subcommand}" != "rm" ] && [ "${subcommand}" != "list" ]; then
+  echo "Usage:"
+  echo "  db server add (server shortname) (ssh) (hostname) (username) (password) (database)"
+  echo "  db server rm (server shortname)"
+  echo "  db server list"
+fi
+
+case ${subcommand} in
+  add)
+    add_server
+    exit 0
+    ;;
+
+  rm)
+    rm_server ${server}
+    exit 0
+    ;;
+
+  list)
+    list_servers
+    exit 0
+    ;;
+esac

@@ -1,7 +1,9 @@
 #!/bin/sh
 
 # Get the directory where the main script is installed
-bin=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
+if [ -z "${bin}" ]; then
+  bin=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
+fi
 includes="${bin}/include"
 
 source "${includes}/colors"

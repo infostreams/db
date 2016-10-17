@@ -9,11 +9,21 @@ identifier="${2}"
 
 repository="${project_root}/.db"
 
+databasetype="mysql"
+if [[ -f "${repository}/databasetype" ]]; then
+  databasetype=$(cat "${repository}/databasetype")
+fi
+
 config="${repository}/${identifier}/config/"
 database_file="${config}/database"
 connection_config="${config}/credentials.cnf"
+connectiontype="direct"
+if [[ -f "${config}/connectiontype" ]]; then
+  connectiontype=$(cat "${config}/connectiontype")
+fi
 
 ssh_config="${config}/ssh.cnf"
+pma_config="${config}/phpmyadmin.cnf"
 
 dumps="${repository}/${identifier}/dumps"
 
@@ -21,3 +31,4 @@ colored_shortname="[${COLOR_YELLOW}${identifier}${COLOR_NC}] "
 
 mysqldump=`which mysqldump`
 mysql=`which mysql`
+

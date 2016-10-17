@@ -1,14 +1,15 @@
 #!/bin/sh
 
-subcommand="${1}";
+command="${1}"
 shift
+subcommand="${1}"
 
 # Try to figure out what the project root directory is
 project_root=$(pwd)
 while [[ ! -d "${project_root}/.db" ]]; do
 
-  if [ "${project_root}" = "/" ]; then
-    if [ "${subcommand}" == "init" ]; then
+  if [ "${project_root}" == "/" ]; then
+    if [ "${command}" == "init" ]; then
       project_root=$(pwd)
       break
     else
@@ -30,13 +31,30 @@ source "${bin}/include/colors"
 # Default server shortname is the first one in the .db folder, or "localhost" if that folder doesn't exist yet
 shortname="localhost"
 if [[ -d "${project_root}/.db" ]]; then
-  shortname=$(ls -d ${project_root}/.db/*/ | head -n 1 | rev | cut -f 2 -d '/' | rev)
-fi
-if [ "$#" -ge 1 ]; then
-  if [ "${subcommand}" == "init" ]; then
-    shortname="${1}"
-    shift
+  configs=$(ls -d ${project_root}/.db/*/ 2>/dev/null | wc -l)
+  if [[ ${configs} -gt 0 ]]; then
+    shortname=$(ls -d ${project_root}/.db/*/ | head -n 1 | rev | cut -f 2 -d '/' | rev)
   else
+    if [ "${command}" != "server" ] && [ "${subcommand}" != "add" ]; then
+      echo "${COLOR_RED}No database servers defined!${COLOR_NC}"
+      echo "Please add a server configuration by typing ${COLOR_LIGHT_BLUE}db server add${COLOR_NC}"
+      exit 1
+    fi
+  fi
+fi
+
+# Figure out if a shortname has been provided on the command line
+if [ "$#" -ge 1 ]; then
+  # yes, perhaps
+  if [ "${command}" == "server" ]; then
+    # with the 'server' command, the shortname is the third argument (server add XXX)
+    if [ "$#" -ge 2 ]; then
+      if [ -d "${project_root}/.db/${2}/config" ] || [ "${subcommand}" == "add" ]; then
+        shortname="${2}"
+      fi
+    fi
+  else
+    # with other commands, the shortname is the second argument (snapshot XXX)
     if [[ -d "${project_root}/.db/${1}/config" ]]; then
       shortname="${1}"
       shift
@@ -47,7 +65,7 @@ fi
 # for synching database CONTENTS http://www.cri.ensmp.fr/~coelho/pg_comparator/pg_comparator.html
 # for synching database STRUCTURE http://mmatuson.github.io/SchemaSync/ or http://search.cpan.org/dist/MySQL-Diff/bin/mysqldiff
 
-cmd="${installation_root}/bin/db-${subcommand}"
+cmd="${installation_root}/bin/db-${command}"
 if [[ -f ${cmd} ]]; then
   ${cmd} "${project_root}" "${shortname}" "$@"
 else
