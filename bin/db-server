@@ -80,7 +80,6 @@ test_config()
 
 delete_config()
 {
-  return
   # I don't like 'rm -rf' for these cases (but perhaps I should reconsider)
   _server=$1
   _config="${repository}/${_server}/config"
