@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
-bin=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0))
-source "${bin}/include/all"
+bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0)")
+. "${bin}/include/all"
 
 pma_url=$(cat "${pma_config}" | grep "^url" | cut -d '=' -f 2 | xargs)
 pma_http_user=$(cat "${pma_config}" | grep "^http_user" | cut -d '=' -f 2 | xargs)
@@ -14,7 +14,7 @@ database=$(cat "${database_file}")
 cmd="${bin}/drivers/mysql/vendor/phpmyadmin-mysql-export/mysql-export.sh"
 cmd="${cmd} --only-login --host=${pma_url}"
 
-if [ ! -z "${pma_http_user// }" ] || [ ! -z "${pma_http_pass// }" ]; then
+if [ ! -z "${pma_http_user}" ] || [ ! -z "${pma_http_pass}" ]; then
   cmd="${cmd} --apache-user=${pma_http_user} --apache-password=${pma_http_pass}"
 fi
 
@@ -25,7 +25,6 @@ code=$?
 
 if [ "${code}" -eq 1 ]; then
   echo "${COLOR_RED}Could not connect to database.${COLOR_NC}"
-  continue
 else
   echo "${COLOR_GREEN}Successfully connected to database.${COLOR_NC}"
 fi
