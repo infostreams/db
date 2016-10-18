@@ -10,5 +10,5 @@ if [ "${3}" = "--help" ]; then
 fi
 
 echo "${colored_shortname}"
-"${bin}/drivers/${databasetype}/test/${connectiontype}" "$@"
+"${bin}/drivers/${databasetype}/connectors/${connectiontype}/test" "$@"
 exit $?

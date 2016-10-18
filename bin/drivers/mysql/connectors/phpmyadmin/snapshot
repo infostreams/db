@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0)")
+bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../../.."))' $0)")
 . "${bin}/include/all"
 
 pma_url=$(cat "${pma_config}" | grep "^url" | cut -d '=' -f 2 | xargs)
@@ -11,7 +11,7 @@ pass=$(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs)
 
 database=$(cat "${database_file}")
 
-cmd="${bin}/drivers/mysql/vendor/phpmyadmin-mysql-export/mysql-export.sh"
+cmd="${bin}/drivers/mysql/connectors/phpmyadmin/mysql-export.sh"
 cmd="${cmd} --host=${pma_url}"
 
 if [ ! -z "${pma_http_user}" ] || [ ! -z "${pma_http_pass}" ]; then
