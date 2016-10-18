@@ -3,18 +3,7 @@
 bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../../.."))' $0)")
 . "${bin}/include/all"
 
-shortname=${2}
-msg=${3}
-ts=$(date +%Y%m%d-%H%M%S)
-
-if [ -z "${msg}" ]; then
-  filename=${ts}
-else
-  filename=${ts}-${msg}
-fi
-
-file="${dumps}/${filename}.gz"
-database=$(cat "${database_file}")
+file=$3
 
 options="--opt -B --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"
@@ -26,13 +15,4 @@ _host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs)
 
 
 ssh ${where} "nice -n 19 sh -c 'mysqldump ${options} --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${database} | gzip'" > "${file}"
-
-code=${?}
-
-if [ "${code}" -eq 1 ]; then
-  echo "${COLOR_RED}Could not create snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}.${COLOR_NC}"
-else
-  echo "${COLOR_GREEN}Created snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}${COLOR_NC}"
-fi
-
-exit ${code}
+exit $?
