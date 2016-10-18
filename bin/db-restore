@@ -1,13 +1,13 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
-bin=$(dirname $0)
-source "${bin}/include/all"
+bin=$(dirname "$0")
+. "${bin}/include/all"
 
 shortname=${2}
 snapshot=${3}
 file="${dumps}/${snapshot}.gz"
 connection_details="--defaults-extra-file=${connection_config}"
-database=`cat "${database_file}"`
+database=$(cat "${database_file}")
 extract_sql="${bin}/vendor/extract_sql/extract_sql.pl"
 
 if [ "$#" -lt 3 ]; then
@@ -28,8 +28,8 @@ restore_table() {
   _credentials="${_config}credentials.cnf"
   _ssh_config="${_config}/ssh.cnf"
   _db_file="${_config}/database"
-  if [[ -f "${_ssh_config}" ]]; then
-    where=`cat "${_ssh_config}"`
+  if [ -f "${_ssh_config}" ]; then
+    where=$(cat "${_ssh_config}")
     _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
     _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
     _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
@@ -54,8 +54,8 @@ restore_snapshot() {
   _credentials="${_config}credentials.cnf"
   _ssh_config="${_config}/ssh.cnf"
   _db_file="${_config}/database"
-  if [[ -f "${_ssh_config}" ]]; then
-    where=`cat "${_ssh_config}"`
+  if [ -f "${_ssh_config}" ]; then
+    where=$(cat "${_ssh_config}")
     _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
     _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
     _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)

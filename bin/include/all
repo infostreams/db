@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # Get the directory where the main script is installed
 if [ -z "${bin}" ]; then
-  bin=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
+  bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0)")
 fi
 includes="${bin}/include"
 
-source "${includes}/colors"
-source "${includes}/vars"
-source "${includes}/functions"
+. "${includes}/colors"
+. "${includes}/vars"
+. "${includes}/functions"

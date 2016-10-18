@@ -1,8 +1,7 @@
-#!/bin/sh
-bin=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0))
-source "${bin}/include/all"
+#!/usr/bin/env sh
+bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0)")
+. "${bin}/include/all"
 
-options="--opt -B --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"
 
 "${mysql}" ${connection_details} -e"quit" >/dev/null
@@ -10,7 +9,6 @@ code=${?}
 
 if [ "${code}" -eq 1 ]; then
   echo "${COLOR_RED}Could not connect to database.${COLOR_NC}"
-  continue
 else
   echo "${COLOR_GREEN}Successfully connected to database.${COLOR_NC}"
 fi

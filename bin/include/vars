@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # Get the directory where the main script is installed
 installation_root=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
@@ -10,7 +10,7 @@ identifier="${2}"
 repository="${project_root}/.db"
 
 databasetype="mysql"
-if [[ -f "${repository}/databasetype" ]]; then
+if [ -f "${repository}/databasetype" ]; then
   databasetype=$(cat "${repository}/databasetype")
 fi
 
@@ -18,7 +18,7 @@ config="${repository}/${identifier}/config/"
 database_file="${config}/database"
 connection_config="${config}/credentials.cnf"
 connectiontype="direct"
-if [[ -f "${config}/connectiontype" ]]; then
+if [ -f "${config}/connectiontype" ]; then
   connectiontype=$(cat "${config}/connectiontype")
 fi
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 options="--opt -B --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"

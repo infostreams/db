@@ -1,8 +1,8 @@
-#!/bin/sh
-bin=$(dirname $0)
-source "${bin}/include/all"
+#!/usr/bin/env sh
+bin=$(dirname "$0")
+. "${bin}/include/all"
 
-shift 2
+if [ "$#" -gt 1 ]; then shift 2; fi
 subcommand="${1}"
 server="${2}"
 connectiontype="${3}"
@@ -12,9 +12,9 @@ username="${6}"
 password="${7}"
 database="${8}"
 
-
 write_config()
 {
+echo "write config $1"
   _server=$1
   _config="${repository}/${_server}/config"
   _dumps="${repository}/${_server}/dumps"
@@ -45,11 +45,11 @@ write_config()
 
   echo "${connectiontype}" > "${_connectiontype_file}"
 
-  if [[ -f "${_ssh_config}" ]]; then
+  if [ -f "${_ssh_config}" ]; then
     rm "${_ssh_config}"
   fi
 
-  if [[ -f "${_pma_config}" ]]; then
+  if [ -f "${_pma_config}" ]; then
     rm "${_pma_config}"
   fi
 
@@ -75,33 +75,15 @@ test_config()
 {
   _server=$1
 
-  ${bin}/../db test $_server
+  "${bin}/../db" test "$_server"
 }
 
 delete_config()
 {
-  # I don't like 'rm -rf' for these cases (but perhaps I should reconsider)
-  _server=$1
-  _config="${repository}/${_server}/config"
-  _credentials="${_config}/credentials.cnf"
-  _db_file="${_config}/database"
-  _dumps="${repository}/${_server}/dumps"
-  _connectiontype_file="${_config}/connectiontype"
-  _ssh_config="${_config}/ssh.cnf"
-  _pma_config="${_config}/phpmyadmin.cnf"
-
-  rm "${_credentials}"
-  rm "${_db_file}"
-  if [ -f "${_ssh_config}" ]; then
-    rm "${_ssh_config}"
+  _server=$(basename "$1")
+  if [ -d "${repository}/${_server:?}" ]; then
+    rm -rf "${repository}/${_server:?}"
   fi
-  if [ -f "${_pma_config}" ]; then
-    rm "${_pma_config}"
-  fi
-  rm "${_connectiontype_file}"
-  rmdir "${_config}"
-  rm -rf "${_dumps}"
-  rmdir "${repository}/${_server}"
 }
 
 add_server()
@@ -109,7 +91,8 @@ add_server()
   while true; do
     if [ "$#" -ne 7 ]; then
 
-      echo "\n${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
+      echo ""
+      echo "${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
       user_input "Server shortname" "Please provide a meaningful server name to refer to this database, such as 'localhost', 'development', 'staging', ..." "${server}" 0
       server=${answer}
 
@@ -129,7 +112,8 @@ add_server()
           user_input "URL of phpMyAdmin" "Please provide the login URL of phpMyAdmin" "${phpmyadmin_url}" 0
           phpmyadmin_url=${answer}
 
-          echo "\nIf you use HTTP Basic Authentication in an attempt to increase the security of your"
+          echo ""
+          echo "If you use HTTP Basic Authentication in an attempt to increase the security of your"
           echo "phpMyAdmin installation, then please input the username and password here."
           user_input "HTTP username" "Please provide the HTTP username" "${phpmyadmin_http_user}" 1
           phpmyadmin_http_user=${answer}
@@ -178,7 +162,7 @@ rm_server()
 {
   _server=$1
   if [ -d "${repository}/${_server}/config" ]; then
-    delete_config $_server
+    delete_config "$_server"
     echo "${COLOR_GREEN}Succesfully removed server configuration \"${_server}\".${COLOR_NC}"
   else
     echo "${COLOR_RED}Server configuration \"${_server}\" does not exist.${COLOR_NC}"
@@ -187,7 +171,7 @@ rm_server()
 
 list_servers()
 {
-  ls -1d ${repository}/*/ | rev | cut -d '/' -f 2 | rev
+  find "${repository}" -type d -d 1 | rev | cut -d '/' -f 1 | rev
 }
 
 if [ "${subcommand}" != "add" ] && [ "${subcommand}" != "rm" ] && [ "${subcommand}" != "list" ]; then
@@ -204,7 +188,7 @@ case ${subcommand} in
     ;;
 
   rm)
-    rm_server ${server}
+    rm_server "${server}"
     exit 0
     ;;
 

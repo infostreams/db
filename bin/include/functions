@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 user_input()
 {
@@ -10,7 +10,7 @@ user_input()
   while true; do
     read -p "${prompt} [${default}]: " answer
 
-    if [ -z "${answer// }" ]; then
+    if [ -z "${answer}" ]; then
       # if answer is empty...
 
       if [ ! -z "${default}" ]; then
@@ -19,7 +19,7 @@ user_input()
         break
       fi
 
-      if [ ${allow_empty} == 1 ]; then
+      if [ "${allow_empty}" = 1 ]; then
         # if we allow empty answers
         break
       fi

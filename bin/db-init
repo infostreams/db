@@ -1,7 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env sh
 trap ctrl_c INT
 
-function ctrl_c()
+repository="." # make sure that it's defined
+ctrl_c()
 {
   # Try to remove repository if this script is interrupted
   # Will silently fail if repository is not empty
@@ -9,26 +10,28 @@ function ctrl_c()
   exit 1
 }
 
-bin=$(dirname $0)
-source "${bin}/include/all"
+bin=$(dirname "$0")
+. "${bin}/include/all"
 
 if [ ! -d "${repository}" ]; then
   mkdir -p "${repository}"
 fi
 
 type="${3}"
-if [[ -z "${type// }" ]]; then
+if [ -z "${type}" ]; then
   type="mysql"
 else
   shift
 fi
-supported=$(ls -1d ${bin}/drivers/*/ | rev | cut -d '/' -f 2 | rev)
+supported=$(find "${bin}/drivers" -type d -d 1 | rev | cut -d '/' -f 1 | rev)
 
 while true; do
   if [ "$#" -lt 3 ]; then
 
-    echo "\n${COLOR_LIGHT_BLUE}Please provide the database type for this repository${COLOR_NC}"
-    echo "Supported types: ${supported}\n"
+    echo ""
+    echo "${COLOR_LIGHT_BLUE}Please provide the database type for this repository${COLOR_NC}"
+    echo "Supported types: ${supported}"
+    echo ""
     user_input "Database type" "" "${type}" 0
     type=${answer}
 
@@ -36,7 +39,7 @@ while true; do
 
   if [ -d "${bin}/drivers/${type}" ]; then
     echo "${type}" > "${repository}/type"
-    ${bin}/../db server add
+    "${bin}/../db" server add
     exit $?
   fi
 

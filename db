@@ -1,15 +1,15 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 command="${1}"
-shift
+if [ "$#" -gt 0 ]; then shift; fi
 subcommand="${1}"
 
 # Try to figure out what the project root directory is
 project_root=$(pwd)
-while [[ ! -d "${project_root}/.db" ]]; do
+while [ ! -d "${project_root}/.db" ]; do
 
-  if [ "${project_root}" == "/" ]; then
-    if [ "${command}" == "init" ]; then
+  if [ "${project_root}" = "/" ]; then
+    if [ "${command}" = "init" ]; then
       project_root=$(pwd)
       break
     else
@@ -22,18 +22,18 @@ while [[ ! -d "${project_root}/.db" ]]; do
 done
 
 # Get the directory where the main script (this one) is installed
-installation_root=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
+installation_root=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0)")
 
 # Load the colors
 bin="${installation_root}/bin"
-source "${bin}/include/colors"
+. "${bin}/include/colors"
 
 # Default server shortname is the first one in the .db folder, or "localhost" if that folder doesn't exist yet
 shortname="localhost"
-if [[ -d "${project_root}/.db" ]]; then
-  configs=$(ls -d ${project_root}/.db/*/ 2>/dev/null | wc -l)
-  if [[ ${configs} -gt 0 ]]; then
-    shortname=$(ls -d ${project_root}/.db/*/ | head -n 1 | rev | cut -f 2 -d '/' | rev)
+if [ -d "${project_root}/.db" ]; then
+  configs=$(find "${project_root}/.db" -type d -d 1 | wc -l)
+  if [ ${configs} -gt 0 ]; then
+    shortname=$(find "${project_root}/.db" -type d -d 1 | head -n 1 | rev | cut -f 1 -d '/' | rev)
   else
     if [ "${command}" != "server" ] && [ "${subcommand}" != "add" ]; then
       echo "${COLOR_RED}No database servers defined!${COLOR_NC}"
@@ -46,16 +46,16 @@ fi
 # Figure out if a shortname has been provided on the command line
 if [ "$#" -ge 1 ]; then
   # yes, perhaps
-  if [ "${command}" == "server" ]; then
+  if [ "${command}" = "server" ]; then
     # with the 'server' command, the shortname is the third argument (server add XXX)
     if [ "$#" -ge 2 ]; then
-      if [ -d "${project_root}/.db/${2}/config" ] || [ "${subcommand}" == "add" ]; then
+      if [ -d "${project_root}/.db/${2}/config" ] || [ "${subcommand}" = "add" ]; then
         shortname="${2}"
       fi
     fi
   else
     # with other commands, the shortname is the second argument (snapshot XXX)
-    if [[ -d "${project_root}/.db/${1}/config" ]]; then
+    if [ -d "${project_root}/.db/${1}/config" ]; then
       shortname="${1}"
       shift
     fi
@@ -66,10 +66,10 @@ fi
 # for synching database STRUCTURE http://mmatuson.github.io/SchemaSync/ or http://search.cpan.org/dist/MySQL-Diff/bin/mysqldiff
 
 cmd="${installation_root}/bin/db-${command}"
-if [[ -f ${cmd} ]]; then
+if [ -f "${cmd}" ]; then
   ${cmd} "${project_root}" "${shortname}" "$@"
 else
-  commands=$(ls -1 ${installation_root}/bin | grep "db-" | cut -d "-" -f 2 | paste -s -d "|" -)
+  commands=$(ls -1 "${installation_root}/bin" | grep "db-" | cut -d "-" -f 2 | paste -s -d "|" -)
   echo "USAGE: db (${commands})"
   exit 1
 fi

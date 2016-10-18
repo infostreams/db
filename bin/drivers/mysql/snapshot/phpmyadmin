@@ -1,6 +1,6 @@
-#!/bin/sh
-bin=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0))
-source "${bin}/include/all"
+#!/usr/bin/env sh
+bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0)")
+. "${bin}/include/all"
 
 pma_url=$(cat "${pma_config}" | grep "^url" | cut -d '=' -f 2 | xargs)
 pma_http_user=$(cat "${pma_config}" | grep "^http_user" | cut -d '=' -f 2 | xargs)
@@ -14,14 +14,14 @@ database=$(cat "${database_file}")
 cmd="${bin}/drivers/mysql/vendor/phpmyadmin-mysql-export/mysql-export.sh"
 cmd="${cmd} --host=${pma_url}"
 
-if [ ! -z "${pma_http_user// }" ] || [ ! -z "${pma_http_pass// }" ]; then
+if [ ! -z "${pma_http_user}" ] || [ ! -z "${pma_http_pass}" ]; then
   cmd="${cmd} --apache-user=${pma_http_user} --apache-password=${pma_http_pass}"
 fi
 
 msg=${3}
 ts=$(date +%Y%m%d-%H%M%S)
 
-if [[ -z "${msg// }" ]]; then
+if [ -z "${msg}" ]; then
   filename=${ts}
 else
   filename=${ts}-${msg}
@@ -31,13 +31,11 @@ file="${dumps}/${filename}.gz"
 
 cmd="${cmd} --stdout --phpmyadmin-user=${user} --phpmyadmin-password=${pass} --database=${database}"
 
-//$cmd | gzip > ${file}
-$cmd | gzip > ${file}
+$cmd | gzip > "${file}"
 code=$?
 
 if [ "${code}" -eq 1 ]; then
   echo "${COLOR_RED}Could not make snapshot of database.${COLOR_NC}"
-  continue
 else
   echo "${COLOR_GREEN}Successfully made snapshot of database.${COLOR_NC}"
 fi

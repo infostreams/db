@@ -1,15 +1,14 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
+bin=$(dirname "$0")
+. "${bin}/include/all"
 
-bin=$(dirname $0)
-source "${bin}/include/all"
-
-if [ "${3}" == "--help" ]; then
+if [ "${3}" = "--help" ]; then
   echo "SYNTAX: ${COLOR_LIGHT_BLUE}db snapshot [server shortname]${COLOR_NC}"
   echo "Tries to connect to the provided database server"
   exit 1
 fi
 
 echo "${colored_shortname}"
-${bin}/drivers/${databasetype}/snapshot/${connectiontype} $*
+"${bin}/drivers/${databasetype}/snapshot/${connectiontype}" "$@"
 exit $?

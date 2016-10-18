@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 COLOR_NC='\033[0m' # No Color
 COLOR_WHITE='\033[1;37m'
