@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0)")
+bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../../.."))' $0)")
 . "${bin}/include/all"
 
 shortname=${2}
@@ -19,19 +19,20 @@ database=$(cat "${database_file}")
 options="--opt -B --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"
 
+where=$(cat "${ssh_config}")
+_user=$(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs)
+_pass=$(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs)
+_host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs)
 
-_config="${repository}/${shortname}/config/"
-_credentials="${_config}credentials.cnf"
-_ssh_config="${_config}/ssh.cnf"
-_db_file="${_config}/database"
 
-where=$(cat "${_ssh_config}")
-_user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
-_pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
-_host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
-_database=$(cat "${_db_file}")
+ssh ${where} "nice -n 19 sh -c 'mysqldump ${options} --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${database} | gzip'" > "${file}"
 
-ssh ${where} "nice -n 19 sh -c 'mysqldump ${options} --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database} | gzip'" > "${file}"
+code=${?}
 
-echo "${colored_shortname}Created snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}"
-exit 0
+if [ "${code}" -eq 1 ]; then
+  echo "${COLOR_RED}Could not create snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}.${COLOR_NC}"
+else
+  echo "${COLOR_GREEN}Created snapshot ${COLOR_LIGHT_BLUE}${filename}${COLOR_NC}${COLOR_NC}"
+fi
+
+exit ${code}

@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../.."))' $0)")
+bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/../../../.."))' $0)")
 . "${bin}/include/all"
 
 shortname=${2}
