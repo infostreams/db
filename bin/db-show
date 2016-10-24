@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+bin=$(dirname "$0")
+. "${bin}/include/all"
+snapshot="${3}"
+
+file="${dumps}/${snapshot}.gz"
+
+if [ -f "${file}" ]; then
+  gunzip < "${file}"
+  exit 0
+else
+  echo "${colored_shortname}Cannot display ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
+  exit 1
+fi
