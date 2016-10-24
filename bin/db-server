@@ -14,7 +14,6 @@ database="${8}"
 
 write_config()
 {
-echo "write config $1"
   _server=$1
   _config="${repository}/${_server}/config"
   _dumps="${repository}/${_server}/dumps"
@@ -75,7 +74,7 @@ test_config()
 {
   _server=$1
 
-  "${bin}/../db" test "$_server"
+  "${bin}/../db" test "$_server" 2>&1 >/dev/null
 }
 
 delete_config()
