@@ -16,7 +16,11 @@ fi
 
 config="${repository}/${identifier}/config/"
 database_file="${config}/database"
-database=$(cat "${database_file}")
+
+database=""
+if [ -f "${database_file}" ]; then
+  database=$(cat "${database_file}")
+fi
 connection_config="${config}/credentials.cnf"
 connectiontype="direct"
 if [ -f "${config}/connectiontype" ]; then
