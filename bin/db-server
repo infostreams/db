@@ -92,7 +92,7 @@ add_server()
 
       echo ""
       echo "${COLOR_LIGHT_BLUE}Please provide the connection details for the database${COLOR_NC}"
-      user_input "Server shortname" "Please provide a meaningful server name to refer to this database, such as 'localhost', 'development', 'staging', ..." "${server}" 0
+      user_input "Server alias" "Please provide a meaningful server name to refer to this database, such as 'localhost', 'development', 'staging', ..." "${server}" 0
       server=${answer}
 
       user_input "Connection type, e.g. direct, ssh, or phpmyadmin" "Please specify how you connect to this database" "${connectiontype}" 0
