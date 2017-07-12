@@ -5,7 +5,7 @@ bin=$(dirname "$0")
 
 shortname=${2}
 snapshot=${3}
-file="${dumps}/${snapshot}.gz"
+find_snapshot "${snapshot}"
 connection_details="--defaults-extra-file=${connection_config}"
 database=$(cat "${database_file}")
 extract_sql="${bin}/vendor/extract_sql/extract_sql.pl"

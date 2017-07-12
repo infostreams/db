@@ -32,3 +32,19 @@ user_input()
 
   done
 }
+
+find_snapshot()
+{
+  snapshot=$1
+  echo "Finding snapshot ${snapshot}"
+  file="${dumps}/${snapshot}.gz"
+
+  if [ ! -f "${file}" ]; then
+    if [ $(find "${dumps}" | grep "${snapshot}" | wc -l | sed -e 's/^[[:space:]]*//') -eq 1 ]; then
+      file=$(find "${dumps}" | grep "${snapshot}")
+    else
+      echo "${COLOR_LIGHT_BLUE}Provided snapshot name is not unique. Aborting.${COLOR_NC}"
+      exit 1
+    fi
+  fi
+}

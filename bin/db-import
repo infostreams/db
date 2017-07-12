@@ -9,6 +9,7 @@ if [ -z "${file}" ]; then
   echo "USAGE: db import [server shortname] <path to .sql or .sql.gz file>"
   exit 1
 fi
+find_snapshot "${file}"
 
 connection_details="--defaults-extra-file=${connection_config}"
 database=$(cat "${database_file}")

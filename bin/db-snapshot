@@ -27,8 +27,19 @@ echo "${colored_shortname}"
 "${bin}/drivers/${databasetype}/connectors/${connectiontype}/snapshot" "${project_root}" "${identifier}" "${file}" "$@"
 code=$?
 
-if [ "${code}" -eq 1 ]; then
-  echo "${COLOR_RED}Could not make snapshot of database.${COLOR_NC}"
+hash=$(gzcat "${file}" | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | shasum -a 512224 | cut -d " " -f 1)
+count=$(find "${dumps}" -type f 2>/dev/null | grep "${hash}" | wc -l | sed -e 's/^[[:space:]]*//')
+
+if [ "${count}" -eq "0" ]; then
+  if [ "${code}" -eq 1 ]; then
+    echo "${COLOR_RED}Could not make snapshot of database.${COLOR_NC}"
+  else
+    mv "${file}" "${dumps}/${hash} ${filename}.gz"
+    echo "${COLOR_GREEN}Successfully made snapshot of database.${COLOR_NC}"
+  fi
 else
-  echo "${COLOR_GREEN}Successfully made snapshot of database.${COLOR_NC}"
+  rm "${file}"
+  echo "${COLOR_RED}Database not changed since last dump${COLOR_NC}, not making a new snapshot."
 fi
+
+

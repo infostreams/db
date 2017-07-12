@@ -4,7 +4,7 @@ bin=$(dirname "$0")
 . "${bin}/include/all"
 snapshot="${3}"
 
-file="${dumps}/${snapshot}.gz"
+find_snapshot "${snapshot}"
 
 if [ -f "${file}" ]; then
   gunzip < "${file}"
