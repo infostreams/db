@@ -36,7 +36,6 @@ user_input()
 find_snapshot()
 {
   snapshot=$1
-  echo "Finding snapshot ${snapshot}"
   file="${dumps}/${snapshot}.gz"
 
   if [ ! -f "${file}" ]; then
