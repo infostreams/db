@@ -42,7 +42,7 @@ find_snapshot()
     if [ $(find "${dumps}" | grep "${snapshot}" | wc -l | sed -e 's/^[[:space:]]*//') -eq 1 ]; then
       file=$(find "${dumps}" | grep "${snapshot}")
     else
-      echo "${COLOR_LIGHT_BLUE}Provided snapshot name is not unique. Aborting.${COLOR_NC}"
+      echo "${COLOR_LIGHT_BLUE}Provided snapshot name is not unique or does not exist. Aborting.${COLOR_NC}"
       exit 1
     fi
   fi
