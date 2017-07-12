@@ -1,0 +1,24 @@
+#!/bin/bash
+
+bin=$(dirname "$0")
+. "${bin}/include/all"
+snapshot="${3}"
+
+find_snapshot "${snapshot}"
+
+if [ -f "${file}" ]; then
+  extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
+  tables=$(gzcat "${file}" | ${extract} --listTables)
+
+  IFS=$'\n'
+  tables=($tables)
+
+  for (( i=0; i<${#tables[@]}; i++ ))
+  do
+    gzcat "${file}" | ${extract} -t ${tables[$i]} | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | grep -v "INSERT INTO"
+  done
+  exit 0
+else
+  echo "${colored_shortname}Cannot display structure of ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
+  exit 1
+fi
