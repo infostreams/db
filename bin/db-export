@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+bin=$(dirname "$0")
+. "${bin}/include/all"
+snapshot="${3}"
+export_filename="${4}"
+
+find_snapshot "${snapshot}"
+
+if [ -z "${export_filename}" ]; then
+  echo "USAGE: db export [server shortname] [snapshot] <path to output .sql file>"
+  exit 1
+fi
+
+if [ -f "${file}" ]; then
+  gunzip < "${file}" > "${export_filename}"
+
+  echo "${colored_shortname}Exported ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} to ${COLOR_LIGHT_BLUE}${export_filename}${COLOR_NC}"
+
+  exit 0
+else
+  echo "${colored_shortname}Cannot export ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
+  exit 1
+fi
