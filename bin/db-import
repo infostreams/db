@@ -9,24 +9,17 @@ if [ -z "${file}" ]; then
   echo "USAGE: db import [server shortname] <path to .sql or .sql.gz file>"
   exit 1
 fi
-find_snapshot "${file}"
 
 connection_details="--defaults-extra-file=${connection_config}"
 database=$(cat "${database_file}")
 
-if [ -f "${file}" ]; then
-  file "${file}" | grep gzip > /dev/null
-  code="${?}"
+# include functions to restore full snapshot and to restore individual tables
+. "${bin}/drivers/${databasetype}/connectors/${connectiontype}/restore"
 
-  if [ "${code}" -eq 0 ]; then
-    # this is a gzipped file
-    echo "${colored_shortname}Starting import of gzipped sql file ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
-    gunzip < "${file}" | "${mysql}" ${connection_details} "${database}"
-  else
-    # this is a regular .sql file
-    echo "${colored_shortname}Starting import of regular sql file ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
-    "${mysql}" ${connection_details} "${database}" < "${file}"
-  fi
+
+if [ -f "${file}" ]; then
+
+  restore_snapshot
 
   echo "${colored_shortname}Imported ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
   exit 0
