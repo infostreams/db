@@ -8,7 +8,7 @@ snapshot=${3}
 find_snapshot "${snapshot}"
 connection_details="--defaults-extra-file=${connection_config}"
 database=$(cat "${database_file}")
-extract_sql="${bin}/vendor/extract_sql/extract_sql.pl"
+extract_sql="${bin}/drivers/${databasetype}/vendor/extract_sql/extract_sql.pl"
 
 if [ "$#" -lt 3 ]; then
   echo "SYNTAX: db restore [server] <snapshot> [table_1] [table_2] [...] [table_n]"
@@ -21,51 +21,31 @@ if [ ! -f "${file}" ]; then
   exit 1
 fi
 
-restore_table() {
-  table=$1
+# include functions to restore full snapshot and to restore individual tables
+. "${bin}/drivers/${databasetype}/connectors/${connectiontype}/restore"
 
-  _config="${repository}/${shortname}/config/"
-  _credentials="${_config}credentials.cnf"
-  _ssh_config="${_config}/ssh.cnf"
-  _db_file="${_config}/database"
-  if [ -f "${_ssh_config}" ]; then
-    where=$(cat "${_ssh_config}")
-    _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
-    _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
-    _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
-    _database=$(cat "${_db_file}")
 
-    gunzip < "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
-  else
-    $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}")
-  fi
+if [ "$#" -gt 3 ]; then
+  # restore individual tables
+  shift 3
+  for table in "$@"; do
+    code=""
 
-  code="${?}"
+    restore_table "${table}"
 
-  if [ "${code}" -eq 0 ]; then
-    echo "${colored_shortname}Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
-  else
-    echo "${colored_shortname}Could not restore table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
-  fi
-}
+    if [ "${code}" -eq 0 ]; then
+      echo "${colored_shortname}Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    else
+      echo "${colored_shortname}Could not restore table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    fi
 
-restore_snapshot() {
-  _config="${repository}/${shortname}/config/"
-  _credentials="${_config}credentials.cnf"
-  _ssh_config="${_config}/ssh.cnf"
-  _db_file="${_config}/database"
-  if [ -f "${_ssh_config}" ]; then
-    where=$(cat "${_ssh_config}")
-    _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
-    _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
-    _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
-    _database=$(cat "${_db_file}")
+  done
+  exit 1
+else
+  # restore full snapshot
+  code=""
 
-    gunzip < "${file}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
-  else
-    gunzip < "${file}" | "${mysql}" ${connection_details} "$database"
-  fi
-  code="${?}"
+  restore_snapshot
 
   if [ "${code}" -eq 0 ]; then
     echo "${colored_shortname}Restored snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
@@ -74,15 +54,5 @@ restore_snapshot() {
     echo "${colored_shortname}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     exit ${code}
   fi
-}
-
-if [ "$#" -gt 3 ]; then
-  shift 3
-  for table in "$@"; do
-    restore_table "${table}"
-  done
-  exit 1
-else
-  restore_snapshot
 fi
 

@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+restore_table() {
+  table=$1
+
+  file "${file}" | grep gzip > /dev/null
+  is_gzip="${?}"
+
+  if [ "${is_gzip}" -eq 0 ]; then
+    # this is a gzipped file
+    $(gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}")
+  else
+    # this is a regular .sql file
+    $(cat "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}")
+  fi
+
+  code="${?}"
+}
+
+restore_snapshot() {
+  file "${file}" | grep gzip > /dev/null
+  is_gzip="${?}"
+
+  if [ "${is_gzip}" -eq 0 ]; then
+    # this is a gzipped file
+    $(gunzip < "${file}" | "${mysql}" ${connection_details} "${database}")
+  else
+    # this is a regular .sql file
+    $(cat "${file}" | "${mysql}" ${connection_details} "${database}")
+  fi
+
+  code="${?}"
+}

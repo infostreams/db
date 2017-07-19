@@ -1,0 +1,57 @@
+#!/usr/bin/env sh
+
+restore_table() {
+  table=$1
+
+  _config="${repository}/${shortname}/config/"
+  _credentials="${_config}credentials.cnf"
+  _ssh_config="${_config}/ssh.cnf"
+  _db_file="${_config}/database"
+
+  where=$(cat "${_ssh_config}")
+  _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
+  _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
+  _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
+  _database=$(cat "${_db_file}")
+
+  file "${file}" | grep gzip > /dev/null
+  is_gzip="${?}"
+
+  if [ "${is_gzip}" -eq 0 ]; then
+    # this is a gzipped file
+    gunzip < "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+  else
+    # this is a regular .sql file
+    cat "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+  fi
+
+
+
+  code="${?}"
+}
+
+restore_snapshot() {
+  _config="${repository}/${shortname}/config/"
+  _credentials="${_config}credentials.cnf"
+  _ssh_config="${_config}/ssh.cnf"
+  _db_file="${_config}/database"
+
+  where=$(cat "${_ssh_config}")
+  _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
+  _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
+  _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
+  _database=$(cat "${_db_file}")
+
+  file "${file}" | grep gzip > /dev/null
+  is_gzip="${?}"
+
+  if [ "${is_gzip}" -eq 0 ]; then
+    # this is a gzipped file
+    gunzip < "${file}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+  else
+    # this is a regular .sql file
+    cat "${file}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+  fi
+
+  code="${?}"
+}
