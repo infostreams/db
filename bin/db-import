@@ -3,10 +3,14 @@
 bin=$(dirname "$0")
 . "${bin}/include/all"
 
-file=${3}
+if [ ! -e "${file}" ]; then
+  snapshot="${3}"
+  find_snapshot_from_any_server "${snapshot}"
+fi
+
 
 if [ -z "${file}" ]; then
-  echo "USAGE: db import [server shortname] <path to .sql or .sql.gz file>"
+  echo "USAGE: db import [server shortname] [<path to .sql or .sql.gz file> | <hash>]"
   exit 1
 fi
 
@@ -18,6 +22,7 @@ database=$(cat "${database_file}")
 
 
 if [ -f "${file}" ]; then
+  echo "${colored_shortname}Starting import"
 
   restore_snapshot
 
