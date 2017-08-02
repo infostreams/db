@@ -14,11 +14,9 @@ if [ "${3}" = "--help" ]; then
   exit 1
 fi
 
-case ${what} in
-  dumps)
-    echo "${colored_shortname}"
-    ls -t1 "${dumps}" | sed -e 's/\.gz$//'
-    exit 0
-    ;;
-esac
-
+for s in ${servers}
+do
+  echo "[${COLOR_YELLOW}${s}${COLOR_NC}]"
+  ls -t1 "${repository}/${s}/dumps" | sed -e 's/\.gz$//'
+  echo ""
+done
