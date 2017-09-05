@@ -4,7 +4,7 @@ bin=$(dirname "$0")
 . "${bin}/include/all"
 snapshot="${3}"
 
-find_snapshot "${snapshot}"
+find_snapshot_from_any_server "${snapshot}"
 
 if [ -f "${file}" ]; then
   extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
@@ -15,7 +15,7 @@ if [ -f "${file}" ]; then
 
   for (( i=0; i<${#tables[@]}; i++ ))
   do
-    gzcat "${file}" | ${extract} -t ${tables[$i]} | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | grep -v "INSERT INTO"
+    gzcat "${file}" | ${extract} -t ${tables[$i]} | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | grep -v "INSERT INTO" | grep -v "^LOCK TABLES" | grep -v "^UNLOCK TABLES" | grep -v "^DROP"
   done
   exit 0
 else
