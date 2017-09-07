@@ -3,7 +3,7 @@
 restore_table() {
   table=$1
 
-  _config="${repository}/${shortname}/config/"
+  _config="${repository}/${identifier}/config/"
   _credentials="${_config}credentials.cnf"
   _ssh_config="${_config}/ssh.cnf"
   _db_file="${_config}/database"
@@ -31,7 +31,7 @@ restore_table() {
 }
 
 restore_snapshot() {
-  _config="${repository}/${shortname}/config/"
+  _config="${repository}/${identifier}/config/"
   _credentials="${_config}credentials.cnf"
   _ssh_config="${_config}/ssh.cnf"
   _db_file="${_config}/database"
