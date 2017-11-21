@@ -47,7 +47,7 @@ if [ "${subcommand}" != "charset" ]; then
   echo ""
   echo "  ${COLOR_LIGHT_BLUE}db change charset [server alias] [new characterset] [new collation] ${COLOR_NC}"
   echo ""
-  echo "      Change the character set and collation on the named server"
+  echo "      Change the character set and collation"
   echo ""
 fi
 
