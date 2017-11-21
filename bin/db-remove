@@ -4,13 +4,22 @@ bin=$(dirname "$0")
 . "${bin}/include/all"
 snapshot="${3}"
 
-find_snapshot "${snapshot}"
+find_snapshot_from_any_server "${snapshot}"
+
+if [ -z "${3}" ]; then
+  echo "USAGE:"
+  echo "    ${COLOR_LIGHT_BLUE}db remove [snapshot]${COLOR_NC}"
+  echo ""
+  echo "Removes a given snapshot from the repository"
+  exit 1
+fi
+
 
 if [ -f "${file}" ]; then
   rm "${file}"
-  echo "${colored_shortname}Removed snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+  echo "${colored_alias}Removed snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
   exit 0
 else
-  echo "${colored_shortname}Cannot remove ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
+  echo "${colored_alias}Cannot remove ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
   exit 1
 fi

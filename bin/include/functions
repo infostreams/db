@@ -53,12 +53,21 @@ find_snapshot_from_any_server()
   snapshot=$1
   file="${dumps}/${snapshot}.gz"
 
-  if [ ! -f "${file}" ]; then
-    if [ $(find "${repository}" | grep "${snapshot}" | wc -l | sed -e 's/^[[:space:]]*//') -eq 1 ]; then
-      file=$(find "${repository}" | grep "${snapshot}")
-    else
-      echo "${COLOR_LIGHT_BLUE}Provided snapshot name is not unique or does not exist. Aborting.${COLOR_NC}"
-      exit 1
+  if [ ! -z "${snapshot}" ]; then
+    if [ ! -f "${file}" ]; then
+      if [ $(find "${repository}" | grep "${snapshot}" | wc -l | sed -e 's/^[[:space:]]*//') -eq 1 ]; then
+        file=$(find "${repository}" | grep "${snapshot}")
+      else
+        echo "${COLOR_LIGHT_BLUE}Provided snapshot, \"${snapshot}\", is not unique or does not exist. Aborting.${COLOR_NC}"
+        exit 1
+      fi
     fi
+  fi
+}
+
+boot()
+{
+  if [ ! -d "${meta}" ]; then
+    mkdir "${meta}"
   fi
 }

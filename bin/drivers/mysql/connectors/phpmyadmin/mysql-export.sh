@@ -36,7 +36,7 @@ MKTEMP=mktemp
 TMP_FOLDER=/tmp
 COMPRESSION=none
 USE_KEYCHAIN=0
-DEBUG=0
+DEBUG=1
 
 ## following values will be overwritten by command line arguments
 STDOUT=
@@ -180,8 +180,8 @@ fi
 greater_than_or_equal() {
     python - "$1" "$2" << EOF
 import sys
-from distutils.version import LooseVersion as LV
-if (LV(sys.argv[1]) >= LV(sys.argv[2])):
+from pkg_resources import parse_version
+if (parse_version(sys.argv[1]) >= parse_version(sys.argv[2])):
   sys.exit(0)
 else:
   sys.exit(1)
@@ -195,6 +195,7 @@ EOF
 ###############################################################
 
 apache_auth_params="--anyauth -u$APACHE_USER:$APACHE_PASSWD"
+
 
 curl $curlopts -D "$TMP_FOLDER/curl.headers" -c "$TMP_FOLDER/cookies.txt" $apache_auth_params "$REMOTE_HOST/index.php" > "$result"
 #    token=$(grep 'token\ =' $result | sed "s/.*token\ =\ '//;s/';$//" )
@@ -214,17 +215,21 @@ else
 fi
 
 cookie=$(cat "$TMP_FOLDER/cookies.txt" | cut  -f 6-7 | grep phpMyAdmin | cut -f 2)
+curl_version=$(curl --version)
 
 entry_params="-d \"phpMyAdmin=$cookie&pma_username=$PHPMYADMIN_USER&pma_password=$PHPMYADMIN_PASSWD&server=1&lang=en-utf-8&convcharset=utf-8&collation_connection=utf8_general_ci&token=$token&input_go=Go\""
+decho Remote host: $REMOTE_HOST/index.php
 decho Apache login: $apache_auth_params
 decho PhpMyadmin login: $entry_params
 decho Token: $token
 decho Cookie: $cookie
+decho Curl version: $curl_version
 ## Try to log in with PhpMyAdmin username and password showing errors if it fails
+
 curl $curlopts -S -D "$TMP_FOLDER/curl.headers" -b "$TMP_FOLDER/cookies.txt" -c "$TMP_FOLDER/cookies.txt" $apache_auth_params $entry_params "$REMOTE_HOST/index.php" > "$result"
 ## did it fail?
 if [ $? -ne 0 ]; then
-    echo "Curl Error on : curl $opts" >&2
+    echo "Curl Error on : curl $curlopts -S -D \"$TMP_FOLDER/curl.headers\" -b \"$TMP_FOLDER/cookies.txt\" -c \"$TMP_FOLDER/cookies.txt\" $apache_auth_params $entry_params \"$REMOTE_HOST/index.php\" > \"$result\"" >&2
     exit 1
 fi
 ## Was the http-request unsuccessful?

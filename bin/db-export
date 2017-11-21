@@ -5,20 +5,23 @@ bin=$(dirname "$0")
 snapshot="${3}"
 export_filename="${4}"
 
-find_snapshot "${snapshot}"
+find_snapshot_from_any_server "${snapshot}"
 
 if [ -z "${export_filename}" ]; then
-  echo "USAGE: db export [server shortname] [snapshot] <path to output .sql file>"
+  echo "USAGE:"
+  echo "    ${COLOR_LIGHT_BLUE}db export [snapshot] <path to output .sql file>${COLOR_NC}"
+  echo ""
+  echo "Exports a database snapshot from the repository to a local file"
   exit 1
 fi
 
 if [ -f "${file}" ]; then
   gunzip < "${file}" > "${export_filename}"
 
-  echo "${colored_shortname}Exported ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} to ${COLOR_LIGHT_BLUE}${export_filename}${COLOR_NC}"
+  echo "${colored_alias}Exported ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} to ${COLOR_LIGHT_BLUE}${export_filename}${COLOR_NC}"
 
   exit 0
 else
-  echo "${colored_shortname}Cannot export ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
+  echo "${colored_alias}Cannot export ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
   exit 1
 fi

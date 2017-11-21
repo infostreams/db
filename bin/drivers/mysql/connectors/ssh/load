@@ -47,10 +47,10 @@ restore_snapshot() {
 
   if [ "${is_gzip}" -eq 0 ]; then
     # this is a gzipped file
-    gunzip < "${file}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+    gunzip < "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
   else
     # this is a regular .sql file
-    cat "${file}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+    cat "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
   fi
 
   code="${?}"

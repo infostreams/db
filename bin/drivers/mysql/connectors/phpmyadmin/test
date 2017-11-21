@@ -15,10 +15,10 @@ cmd="${bin}/drivers/mysql/connectors/phpmyadmin/mysql-export.sh"
 cmd="${cmd} --only-login --host=${pma_url}"
 
 if [ ! -z "${pma_http_user}" ] || [ ! -z "${pma_http_pass}" ]; then
-  cmd="${cmd} --apache-user=${pma_http_user} --apache-password=${pma_http_pass}"
+  cmd="${cmd} --apache-user=\"${pma_http_user}\" --apache-password=\"${pma_http_pass}\""
 fi
 
-cmd="${cmd} --phpmyadmin-user=${user} --phpmyadmin-password=${pass} --database=${database}"
+cmd="${cmd} --phpmyadmin-user=\"${user}\" --phpmyadmin-password=\"${pass}\" --database=\"${database}\""
 
 $cmd
 code=$?

@@ -3,9 +3,11 @@
 bin=$(dirname "$0")
 . "${bin}/include/all"
 
-if [ "${3}" = "--help" ]; then
-  echo "SYNTAX: ${COLOR_LIGHT_BLUE}db snapshot [server shortname]${COLOR_NC}"
-  echo "Makes a snapshot of the database at the provided database server"
+if [ -z "${3}" ]; then
+  echo "USAGE:"
+  echo "    ${COLOR_LIGHT_BLUE}db save [server alias] [commit message]${COLOR_NC}"
+  echo ""
+  echo "Saves a snapshot of the database to the repository"
   exit 1
 fi
 
@@ -13,28 +15,37 @@ msg=${3}
 
 shift 2
 
+# create temporary filename
 ts=$(date +%Y%m%d-%H%M%S)
-
-if [ -z "${msg}" ]; then
-  filename=${ts}
-else
-  filename=${ts}-${msg}
-  shift
-fi
+filename=${ts}
 file="${dumps}/${filename}.gz"
 
-echo "${colored_shortname}"
-"${bin}/drivers/${databasetype}/connectors/${connectiontype}/snapshot" "${project_root}" "${identifier}" "${file}" "$@"
+# create database dump to temporary file
+echo "${colored_alias}"
+"${bin}/drivers/${databasetype}/connectors/${connectiontype}/save" "${project_root}" "${identifier}" "${file}" "$@"
 code=$?
 
+# calculate hash of this dump
 hash=$(gzcat "${file}" | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | shasum -a 512224 | cut -d " " -f 1)
+
+# check if we already have a dump with that hash
 count=$(find "${dumps}" -type f 2>/dev/null | grep "${hash}" | wc -l | sed -e 's/^[[:space:]]*//')
 
 if [ "${count}" -eq "0" ]; then
+  # no, we don't have a dump with that hash
   if [ "${code}" -eq 1 ]; then
+    # but there was an error making the database dump
     echo "${COLOR_RED}Could not make snapshot of database.${COLOR_NC}"
   else
-    mv "${file}" "${dumps}/${hash} ${filename}.gz"
+    # no errors, so give temporary dump its final name, based on the hash
+    mv "${file}" "${dumps}/${hash}.gz"
+
+    # save message and timestamp to metadata
+    since_epoch=$(date +%s)
+    timestamp=$(date -r $(date +%s))
+    echo "${since_epoch}" > "${meta}/${hash}"
+    echo "${timestamp}" >> "${meta}/${hash}"
+    echo "${msg}" >> "${meta}/${hash}"
     echo "${COLOR_GREEN}Successfully made snapshot of database.${COLOR_NC}"
   fi
 else

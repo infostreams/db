@@ -10,8 +10,11 @@ if [ ! -e "${file}" ]; then
 fi
 
 
-if [ -z "${file}" ]; then
-  echo "USAGE: db import [server shortname] [<path to .sql or .sql.gz file> | <hash>]"
+if [ -z "${file}" ] || [ ! -f "${file}" ]; then
+  echo "USAGE:"
+  echo "    ${COLOR_LIGHT_BLUE}db import [server alias] [<path to .sql or .sql.gz file> | <hash>]${COLOR_NC}"
+  echo ""
+  echo "Imports a database dump from a local file, or from an existing snapshot"
   exit 1
 fi
 
@@ -19,17 +22,17 @@ connection_details="--defaults-extra-file=${connection_config}"
 database=$(cat "${database_file}")
 
 # include functions to restore full snapshot and to restore individual tables
-. "${bin}/drivers/${databasetype}/connectors/${connectiontype}/restore"
+. "${bin}/drivers/${databasetype}/connectors/${connectiontype}/load"
 
 
 if [ -f "${file}" ]; then
-  echo "${colored_shortname}Starting import"
+  echo "${colored_alias}Starting import"
 
   restore_snapshot
 
-  echo "${colored_shortname}Imported ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
+  echo "${colored_alias}Imported ${COLOR_LIGHT_BLUE}${file}${COLOR_NC}"
   exit 0
 else
-  echo "${colored_shortname}Cannot import ${COLOR_LIGHT_BLUE}${file}${COLOR_NC} - file does not exist"
+  echo "${colored_alias}Cannot import ${COLOR_LIGHT_BLUE}${file}${COLOR_NC} - file does not exist"
   exit 1
 fi

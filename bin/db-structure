@@ -1,24 +1,30 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 bin=$(dirname "$0")
 . "${bin}/include/all"
 snapshot="${3}"
 
+if [ -z "${3}" ]; then
+  echo "USAGE:"
+  echo "    ${COLOR_LIGHT_BLUE}db structure [snapshot]${COLOR_NC}"
+  echo ""
+  echo "Displays the table structure of a snapshot"
+  exit 1
+fi
+
 find_snapshot_from_any_server "${snapshot}"
+
 
 if [ -f "${file}" ]; then
   extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
   tables=$(gzcat "${file}" | ${extract} --listTables)
 
-  IFS=$'\n'
-  tables=($tables)
-
-  for (( i=0; i<${#tables[@]}; i++ ))
+  for table in $tables
   do
-    gzcat "${file}" | ${extract} -t ${tables[$i]} | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | grep -v "INSERT INTO" | grep -v "^LOCK TABLES" | grep -v "^UNLOCK TABLES" | grep -v "^DROP"
+    gzcat "${file}" | ${extract} -t ${table} | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | grep -v "INSERT INTO" | grep -v "^LOCK TABLES" | grep -v "^UNLOCK TABLES" | grep -v "^DROP"
   done
   exit 0
 else
-  echo "${colored_shortname}Cannot display structure of ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
+  echo "${colored_alias}Cannot display structure of ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
   exit 1
 fi

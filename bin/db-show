@@ -6,10 +6,18 @@ snapshot="${3}"
 
 find_snapshot_from_any_server "${snapshot}"
 
+if [ -z "${3}" ]; then
+  echo "USAGE:"
+  echo "    ${COLOR_LIGHT_BLUE}db show [snapshot]${COLOR_NC}"
+  echo ""
+  echo "Displays the SQL contents of a snapshot"
+  exit 1
+fi
+
 if [ -f "${file}" ]; then
   gunzip < "${file}"
   exit 0
 else
-  echo "${colored_shortname}Cannot display ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
+  echo "${colored_alias}Cannot display ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
   exit 1
 fi

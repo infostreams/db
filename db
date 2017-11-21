@@ -28,12 +28,12 @@ installation_root=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(s
 bin="${installation_root}/bin"
 . "${bin}/include/colors"
 
-# Default server shortname is the first one in the .db folder, or "localhost" if that folder doesn't exist yet
-shortname="localhost"
+# Default server alias is the server that was added first. If no servers exist yet, use "localhost"
+alias="localhost"
 if [ -d "${project_root}/.db" ]; then
   configs=$(find "${project_root}/.db" -type d -d 1 | wc -l)
   if [ ${configs} -gt 0 ]; then
-    shortname=$(find "${project_root}/.db" -type d -d 1 | head -n 1 | rev | cut -f 1 -d '/' | rev)
+    alias=$(find "${project_root}/.db" -type d -d 1 -print0 | xargs -0 ls -1drt | head -n 1 | rev | cut -f 1 -d '/' | rev)
   else
     if [ "${command}" != "server" ] && [ "${subcommand}" != "add" ]; then
       echo "${COLOR_RED}No database servers defined!${COLOR_NC}"
@@ -43,20 +43,20 @@ if [ -d "${project_root}/.db" ]; then
   fi
 fi
 
-# Figure out if a shortname has been provided on the command line
+# Figure out if an alias has been provided on the command line
 if [ "$#" -ge 1 ]; then
   # yes, perhaps
   if [ "${command}" = "server" ]; then
-    # with the 'server' command, the shortname is the third argument (server add XXX)
+    # with the 'server' command, the alias is the third argument (server add XXX)
     if [ "$#" -ge 2 ]; then
       if [ -d "${project_root}/.db/${2}/config" ] || [ "${subcommand}" = "add" ]; then
-        shortname="${2}"
+        alias="${2}"
       fi
     fi
   else
-    # with other commands, the shortname is the second argument (snapshot XXX)
+    # with other commands, the alias is the second argument (snapshot XXX)
     if [ -d "${project_root}/.db/${1}/config" ]; then
-      shortname="${1}"
+      alias="${1}"
       shift
     fi
   fi
@@ -67,7 +67,7 @@ fi
 
 cmd="${installation_root}/bin/db-${command}"
 if [ -f "${cmd}" ]; then
-  ${cmd} "${project_root}" "${shortname}" "$@"
+  ${cmd} "${project_root}" "${alias}" "$@"
 else
   commands=$(ls -1 "${installation_root}/bin" | grep "db-" | cut -d "-" -f 2 | paste -s -d "|" -)
   echo "USAGE: db (${commands})"

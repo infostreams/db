@@ -174,10 +174,20 @@ list_servers()
 }
 
 if [ "${subcommand}" != "add" ] && [ "${subcommand}" != "rm" ] && [ "${subcommand}" != "list" ]; then
-  echo "Usage:"
-  echo "  db server add (server shortname) (ssh) (hostname) (username) (password) (database)"
-  echo "  db server rm (server shortname)"
-  echo "  db server list"
+  echo "USAGE:"
+  echo ""
+  echo "  ${COLOR_LIGHT_BLUE}db server add (server alias) (ssh) (hostname) (username) (password) (database)${COLOR_NC}"
+  echo ""
+  echo "      Adds a server to the repository. All parameters are optional."
+  echo ""
+  echo "  ${COLOR_LIGHT_BLUE}db server rm [server alias]${COLOR_NC}"
+  echo ""
+  echo "      Removes a server and all its snapshots from the repository."
+  echo ""
+  echo "  ${COLOR_LIGHT_BLUE}db server list${COLOR_NC}"
+  echo ""
+  echo "      Shows a list of available servers."
+  echo ""
 fi
 
 case ${subcommand} in

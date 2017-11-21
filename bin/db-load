@@ -5,24 +5,28 @@ bin=$(dirname "$0")
 
 shortname=${2}
 snapshot=${3}
-find_snapshot "${snapshot}"
+find_snapshot_from_any_server "${snapshot}"
 connection_details="--defaults-extra-file=${connection_config}"
 database=$(cat "${database_file}")
 extract_sql="${bin}/drivers/${databasetype}/vendor/extract_sql/extract_sql.pl"
 
 if [ "$#" -lt 3 ]; then
-  echo "SYNTAX: db restore [server] <snapshot> [table_1] [table_2] [...] [table_n]"
-  echo "Restores a snapshot, or part of a snapshot"
+  echo "USAGE:"
+  echo "    ${COLOR_LIGHT_BLUE}db load [server alias] [snapshot] <table_1> <table_2> <...> <table_n>${COLOR_NC}"
+  echo ""
+  echo "Loads a database snapshot, or part of a snapshot, to a given server"
+  echo ""
+  echo "${COLOR_RED}WARNING!! Will overwrite (parts of) the database on that server!${COLOR_NC}" # that's the point
   exit 1
 fi
 
 if [ ! -f "${file}" ]; then
-  echo "${colored_shortname}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
+  echo "${colored_alias}Could not load snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"
   exit 1
 fi
 
-# include functions to restore full snapshot and to restore individual tables
-. "${bin}/drivers/${databasetype}/connectors/${connectiontype}/restore"
+# include functions to load full snapshot and to load individual tables
+. "${bin}/drivers/${databasetype}/connectors/${connectiontype}/load"
 
 
 if [ "$#" -gt 3 ]; then
@@ -34,24 +38,24 @@ if [ "$#" -gt 3 ]; then
     restore_table "${table}"
 
     if [ "${code}" -eq 0 ]; then
-      echo "${colored_shortname}Restored table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+      echo "${colored_alias}Loaded table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     else
-      echo "${colored_shortname}Could not restore table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+      echo "${colored_alias}Could not load table ${COLOR_LIGHT_BLUE}${table}${COLOR_NC} from snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     fi
 
   done
   exit 1
 else
-  # restore full snapshot
+  # load full snapshot
   code=""
 
   restore_snapshot
 
   if [ "${code}" -eq 0 ]; then
-    echo "${colored_shortname}Restored snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    echo "${colored_alias}Loaded snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     exit 0
   else
-    echo "${colored_shortname}Could not restore snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
+    echo "${colored_alias}Could not load snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC}"
     exit ${code}
   fi
 fi

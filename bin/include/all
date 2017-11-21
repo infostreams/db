@@ -9,3 +9,5 @@ includes="${bin}/include"
 . "${includes}/colors"
 . "${includes}/vars"
 . "${includes}/functions"
+
+boot

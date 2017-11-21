@@ -31,8 +31,9 @@ ssh_config="${config}/ssh.cnf"
 pma_config="${config}/phpmyadmin.cnf"
 
 dumps="${repository}/${identifier}/dumps"
+meta="${repository}/${identifier}/meta"
 
-colored_shortname="[${COLOR_YELLOW}${identifier}${COLOR_NC}] "
+colored_alias="[${COLOR_YELLOW}${identifier}${COLOR_NC}] "
 
 mysqldump=`which mysqldump`
 mysql=`which mysql`
