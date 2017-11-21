@@ -3,11 +3,6 @@
 bin=$(dirname "$0")
 . "${bin}/include/all"
 
-what="dumps"
-if [ "$#" -ge 3 ]; then
-  what="${3}"
-fi
-
 if [ "${3}" = "--help" ]; then
   echo "USAGE:"
   echo "    ${COLOR_LIGHT_BLUE}db list${COLOR_NC}"
@@ -24,14 +19,14 @@ do
   path_length=$(echo "${dumps}/" | wc -c)
   meta="${repository}/${s}/meta"
 
-  find "${dumps}" -type f -print0 | xargs -0 ls -1t | sed -e 's/\.gz$//' | cut -c ${path_length}- | while read hash
+  find "${dumps}" -type f -print0 | xargs -0 ls -1t | sed -e 's/\.gz$//' | cut -c ${path_length}- | while read -r hash
   do
     echo "${COLOR_NC}${hash}${COLOR_NC}"
 
     if [ -f "${meta}/${hash}" ]; then
-      unix_ts=$(cat "${meta}/${hash}" | head -n 1)
-      human_ts=$(cat "${meta}/${hash}" | head -n 2 | tail -n 1)
-      msg=$(cat "${meta}/${hash}" | tail -n 1)
+      # unix_ts=$(head -n 1 "${meta}/${hash}")
+      human_ts=$(head -n 2 "${meta}/${hash}" | tail -n 1)
+      msg=$(tail -n 1 "${meta}/${hash}")
       echo "    ${COLOR_LIGHT_BLUE}${human_ts}${COLOR_NC} ${COLOR_LIGHT_GRAY}${msg}${COLOR_NC} "
       echo ""
     fi

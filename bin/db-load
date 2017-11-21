@@ -3,12 +3,10 @@
 bin=$(dirname "$0")
 . "${bin}/include/all"
 
-shortname=${2}
 snapshot=${3}
 find_snapshot_from_any_server "${snapshot}"
 connection_details="--defaults-extra-file=${connection_config}"
 database=$(cat "${database_file}")
-extract_sql="${bin}/drivers/${databasetype}/vendor/extract_sql/extract_sql.pl"
 
 if [ "$#" -lt 3 ]; then
   echo "USAGE:"
@@ -19,6 +17,7 @@ if [ "$#" -lt 3 ]; then
   echo "${COLOR_RED}WARNING!! Will overwrite (parts of) the database on that server!${COLOR_NC}" # that's the point
   exit 1
 fi
+
 
 if [ ! -f "${file}" ]; then
   echo "${colored_alias}Could not load snapshot ${COLOR_LIGHT_BLUE}${snapshot}${COLOR_NC} - snapshot does not exist"

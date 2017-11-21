@@ -29,7 +29,7 @@ code=$?
 hash=$(gzcat "${file}" | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | shasum -a 512224 | cut -d " " -f 1)
 
 # check if we already have a dump with that hash
-count=$(find "${dumps}" -type f 2>/dev/null | grep "${hash}" | wc -l | sed -e 's/^[[:space:]]*//')
+count=$(find "${dumps}" -type f 2>/dev/null | grep -c "${hash}" | sed -e 's/^[[:space:]]*//')
 
 if [ "${count}" -eq "0" ]; then
   # no, we don't have a dump with that hash

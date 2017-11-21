@@ -74,7 +74,7 @@ test_config()
 {
   _server=$1
 
-  "${bin}/../db" test "$_server" 2>&1 >/dev/null
+  "${bin}/../db" test "$_server" >/dev/null 2>&1
 }
 
 delete_config()
