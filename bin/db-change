@@ -1,0 +1,61 @@
+#!/usr/bin/env sh
+bin=$(dirname "$0")
+. "${bin}/include/all"
+
+if [ "$#" -gt 1 ]; then shift 2; fi
+subcommand="${1}"
+server="${2}"
+
+if [ "$#" -gt 2 ]; then shift 2; fi
+
+
+# include functions to run queries
+. "${bin}/drivers/${databasetype}/connectors/${connectiontype}/run"
+
+
+change_charset()
+{
+  _charset=$1
+  _collation=$2
+
+  if [ -z "${_charset}" ] || [ -z "${_collation}" ]; then
+    echo "Please provide both the character set and the collation"
+    exit 1
+  fi
+
+  database=$(cat "${database_file}")
+
+  sql="SELECT CONCAT('ALTER TABLE \`',TABLE_SCHEMA,'\`.\`',TABLE_NAME,'\` CONVERT TO CHARACTER SET ${_charset} COLLATE ${_collation};') from information_schema.TABLES WHERE TABLE_SCHEMA = '${database}';"
+  run_sql "${sql}"
+
+  if [ "${code}" -eq 0 ]; then
+    # Initial SQL ran successfully
+    echo "Trying to run the following SQL"
+    echo "${COLOR_BLUE}${output}${COLOR_NC}"
+    run_sql "${output}"
+
+    if [ "${code}" -eq 0 ]; then
+      echo "${colored_alias}${COLOR_GREEN}Successfully changed character set to '${_charset}' and collation to '${_collation}'.${COLOR_NC}"
+    fi
+  fi
+
+  if [ "${code}" -eq 1 ]; then
+    echo "${COLOR_RED}Error while converting character set and collation.${COLOR_NC}"
+  fi
+}
+
+if [ "${subcommand}" != "charset" ]; then
+  echo "USAGE:"
+  echo ""
+  echo "  ${COLOR_LIGHT_BLUE}db change charset [server alias] [new characterset] [new collation] ${COLOR_NC}"
+  echo ""
+  echo "      Change the character set and collation on the named server"
+  echo ""
+fi
+
+case ${subcommand} in
+  charset)
+    change_charset "$@"
+    exit 0
+    ;;
+esac

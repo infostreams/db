@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+
+run_sql() {
+  sql=$1
+  connection_details="--defaults-extra-file=${connection_config}"
+
+  output=$(echo "${sql}" | "${mysql}" ${connection_details} --skip-column-names)
+  code=${?}
+}
