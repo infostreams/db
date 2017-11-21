@@ -70,6 +70,7 @@ if [ -f "${cmd}" ]; then
   ${cmd} "${project_root}" "${alias}" "$@"
 else
   commands=$(ls -1 "${installation_root}/bin" | grep "db-" | cut -d "-" -f 2 | paste -s -d "|" -)
-  echo "USAGE: db (${commands})"
+  echo "USAGE:"
+  echo "    ${COLOR_BLUE}db (${commands})${COLOR_NC}"
   exit 1
 fi
