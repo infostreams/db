@@ -55,8 +55,8 @@ find_snapshot_from_any_server()
 
   if [ ! -z "${snapshot}" ]; then
     if [ ! -f "${file}" ]; then
-      if [ $(find "${repository}" | grep "${snapshot}" | wc -l | sed -e 's/^[[:space:]]*//') -eq 1 ]; then
-        file=$(find "${repository}" | grep "${snapshot}")
+      if [ $(find "${repository}/" | grep -c "dumps/${snapshot}") -eq 1 ]; then
+        file=$(find "${repository}" | grep "dumps/${snapshot}")
       else
         echo "${COLOR_LIGHT_BLUE}Provided snapshot, \"${snapshot}\", is not unique or does not exist. Aborting.${COLOR_NC}"
         exit 1
