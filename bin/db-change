@@ -30,8 +30,6 @@ change_charset()
 
   if [ "${code}" -eq 0 ]; then
     # Initial SQL ran successfully
-    echo "Trying to run the following SQL"
-    echo "${COLOR_BLUE}${output}${COLOR_NC}"
     run_sql "${output}"
 
     if [ "${code}" -eq 0 ]; then
