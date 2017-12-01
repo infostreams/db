@@ -42,18 +42,64 @@ change_charset()
   fi
 }
 
-if [ "${subcommand}" != "charset" ]; then
+change_wordpress()
+{
+  _new_url=$2
+
+  if [ -z "${_new_url}" ]; then
+    echo "Please provide a new URL to migrate this WordPress database to"
+    exit 1
+  fi
+
+  database=$(cat "${database_file}")
+
+  # get current ('old') site url
+  sql="SELECT \`option_value\` FROM ${database}.\`wp_options\` WHERE \`option_name\`=\"siteurl\";"
+  run_sql "${sql}"
+  _prev_url=$output
+
+  if [ "${code}" -eq 0 ]; then
+    # set new site url
+    sql="USE ${database}; UPDATE \`wp_options\` SET \`option_value\`=\"${_new_url}\" WHERE \`option_name\` IN (\"siteurl\", \"home\");"
+    run_sql "${sql}"
+
+    if [ "${code}" -eq 0 ]; then
+      # replace old site url with new site url in content
+      sql="USE ${database}; UPDATE \`wp_posts\` SET \`post_content\` = REPLACE(\`post_content\`, '${_prev_url}', '${_new_url}')"
+      run_sql "${sql}"
+
+      if [ "${code}" -eq 0 ]; then
+        echo "${colored_alias}${COLOR_GREEN}Successfully changed WordPress installation to be hosted from ${_new_url} instead of from ${_prev_url}.${COLOR_NC}"
+      fi
+    fi
+  fi
+
+  if [ "${code}" -eq 1 ]; then
+    echo "${COLOR_RED}Error while changing WordPress installation URL.${COLOR_NC}"
+  fi
+}
+
+if [ "${subcommand}" != "charset" ] && [ "${subcommand}" != "wordpress" ]; then
   echo "USAGE:"
   echo ""
   echo "  ${COLOR_LIGHT_BLUE}db change charset [server alias] [new characterset] [new collation] ${COLOR_NC}"
   echo ""
   echo "      Change the character set and collation"
   echo ""
+  echo "  ${COLOR_LIGHT_BLUE}db change wordpress [server alias] [new url] ${COLOR_NC}"
+  echo ""
+  echo "      Assume the database is a WordPress database and make changes so that it can run on the new url"
+  echo ""
+  echo "${COLOR_RED}WARNING!! These commands do NOT operate on a snapshot but on the real database instead!${COLOR_NC}"
 fi
 
 case ${subcommand} in
   charset)
     change_charset "$@"
+    exit 0
+    ;;
+  wordpress)
+    change_wordpress "$@"
     exit 0
     ;;
 esac
