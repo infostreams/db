@@ -44,7 +44,7 @@ change_charset()
 
 change_wordpress()
 {
-  _new_url=$2
+  _new_url=$1
 
   if [ -z "${_new_url}" ]; then
     echo "Please provide a new URL to migrate this WordPress database to"
