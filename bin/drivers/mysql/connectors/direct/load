@@ -3,15 +3,17 @@
 restore_table() {
   table=$1
 
+  extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
+
   file "${file}" | grep gzip > /dev/null
   is_gzip="${?}"
 
   if [ "${is_gzip}" -eq 0 ]; then
     # this is a gzipped file
-    gunzip < "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}"
+    gunzip < "${file}" | "${extract}" -t "${table}" | "${mysql}" ${connection_details} "${database}"
   else
     # this is a regular .sql file
-    cat "${file}" | "${extract_sql}" -t "${table}" | "${mysql}" ${connection_details} "${database}"
+    cat "${file}" | "${extract}" -t "${table}" | "${mysql}" ${connection_details} "${database}"
   fi
 
   code="${?}"
