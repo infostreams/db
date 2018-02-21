@@ -46,7 +46,7 @@ if [ "${count}" -eq "0" ]; then
     echo "${since_epoch}" > "${meta}/${hash}"
     echo "${timestamp}" >> "${meta}/${hash}"
     echo "${msg}" >> "${meta}/${hash}"
-    echo "${COLOR_GREEN}Successfully made snapshot of database.${COLOR_NC}"
+    echo "${COLOR_GREEN}Successfully made snapshot of database${COLOR_NC} - hash ${COLOR_BLUE}${hash}${COLOR_NC}"
   fi
 else
   rm "${file}"
