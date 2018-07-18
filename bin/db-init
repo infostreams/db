@@ -15,9 +15,6 @@ bin=$(dirname "$0")
 
 if [ ! -d "${repository}" ]; then
   mkdir -p "${repository}"
-else
-  echo "[${COLOR_LIGHT_RED}Warning${COLOR_NC}] Cannot (re)initialize repository - repository already exists"
-  exit 1
 fi
 
 type="${3}"

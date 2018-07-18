@@ -38,4 +38,7 @@ colored_alias="[${COLOR_YELLOW}${identifier}${COLOR_NC}] "
 mysqldump=`which mysqldump`
 mysql=`which mysql`
 
-servers=$(find "${repository}" -type d -depth 1 | xargs -n1 basename)
+servers="localhost"
+if [ -d "${repository}" ]; then
+  servers=$(find "${repository}" -type d -depth 1 | xargs -n1 basename)
+fi

@@ -68,6 +68,6 @@ find_snapshot_from_any_server()
 boot()
 {
   if [ ! -d "${meta}" ]; then
-    mkdir "${meta}"
+    mkdir -p "${meta}"
   fi
 }
