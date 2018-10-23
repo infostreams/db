@@ -5,7 +5,7 @@ bin=$(dirname "$0")
 
 if [ "${3}" = "--help" ]; then
   echo "USAGE:"
-  echo "    ${COLOR_LIGHT_BLUE}db list${COLOR_NC}"
+  echo "    ${COLOR_LIGHT_BLUE}db log${COLOR_NC}"
   echo ""
   echo "Prints a list of recorded database dumps"
   exit 1
