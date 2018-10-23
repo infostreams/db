@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+bin=$(dirname "$0")
+. "${bin}/include/all"
+
+if [ "$#" -lt 2 ]; then
+  echo "USAGE:"
+  echo "    ${COLOR_LIGHT_BLUE}db nuke [server alias]${COLOR_NC}"
+  echo ""
+  echo "Deletes all tables in a database"
+  exit 1
+fi
+
+database=$(cat "${database_file}")
+
+options="--no-data --add-drop-database"
+connection_details="--defaults-extra-file=${connection_config}"
+"${mysqldump}" ${connection_details} ${options} "${database}" | grep 'DROP TABLE' | "${mysql}" ${connection_details} "${database}"
+
+echo "${colored_alias}🍄 Nuked ${database}"
