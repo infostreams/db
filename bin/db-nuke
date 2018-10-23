@@ -17,4 +17,4 @@ options="--no-data --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"
 "${mysqldump}" ${connection_details} ${options} "${database}" | grep 'DROP TABLE' | "${mysql}" ${connection_details} "${database}"
 
-echo "${colored_alias}🍄 Nuked ${database}"
+echo "${colored_alias}Nuked ${database}"
