@@ -14,6 +14,8 @@ restore_table() {
   _host=$(printf %q $(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs))
   _database=$(cat "${_db_file}")
 
+  extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
+
   file "${file}" | grep gzip > /dev/null
   is_gzip="${?}"
 
@@ -22,10 +24,10 @@ restore_table() {
 
   if [ "${is_gzip}" -eq 0 ]; then
     # this is a gzipped file
-    gunzip < "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
+    gunzip < "${file}" | "${extract}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
   else
     # this is a regular .sql file
-    cat "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
+    cat "${file}" | "${extract}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
   fi
 
   code="${?}"
