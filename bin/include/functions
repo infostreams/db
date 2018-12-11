@@ -65,6 +65,12 @@ find_snapshot_from_any_server()
   fi
 }
 
+escape_commandline()
+{
+    cmd=$1
+    escaped=$(printf %q "${cmd}" | sed "s/\\\'/\'\\\'\'/g") # replaces \' with '\'' - see https://stackoverflow.com/a/33949338
+}
+
 boot()
 {
   if [ ! -d "${meta}" ]; then

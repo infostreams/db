@@ -9,23 +9,24 @@ restore_table() {
   _db_file="${_config}/database"
 
   where=$(cat "${_ssh_config}")
-  _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
-  _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
-  _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
+  _user=$(printf %q $(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs))
+  _pass=$(printf %q $(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs))
+  _host=$(printf %q $(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs))
   _database=$(cat "${_db_file}")
 
   file "${file}" | grep gzip > /dev/null
   is_gzip="${?}"
 
+  cmd="mysql --user='${_user}' --host='${_host}' --password='${_pass}' ${_database}"
+  escape_commandline "${cmd}"
+
   if [ "${is_gzip}" -eq 0 ]; then
     # this is a gzipped file
-    gunzip < "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+    gunzip < "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
   else
     # this is a regular .sql file
-    cat "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+    cat "${file}" | "${extract_sql}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
   fi
-
-
 
   code="${?}"
 }
@@ -37,20 +38,23 @@ restore_snapshot() {
   _db_file="${_config}/database"
 
   where=$(cat "${_ssh_config}")
-  _user=$(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs)
-  _pass=$(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs)
-  _host=$(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs)
+  _user=$(printf %q $(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs))
+  _pass=$(printf %q $(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs))
+  _host=$(printf %q $(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs))
   _database=$(cat "${_db_file}")
 
   file "${file}" | grep gzip > /dev/null
   is_gzip="${?}"
 
+  cmd="mysql --user='${_user}' --host='${_host}' --password='${_pass}' ${_database}"
+  escape_commandline "${cmd}"
+
   if [ "${is_gzip}" -eq 0 ]; then
     # this is a gzipped file
-    gunzip < "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+    gunzip < "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
   else
     # this is a regular .sql file
-    cat "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c 'mysql --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${_database}'"
+    cat "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
   fi
 
   code="${?}"
