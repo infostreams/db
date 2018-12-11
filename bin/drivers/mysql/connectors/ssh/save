@@ -5,14 +5,16 @@ bin=$(dirname "$(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]+"/.
 
 file=$3
 
-options="--opt -B --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"
 
 where=$(cat "${ssh_config}")
-_user=$(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs)
-_pass=$(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs)
-_host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs)
+_user=$(printf %q $(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs))
+_pass=$(printf %q $(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs))
+_host=$(printf %q $(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs))
 
+cmd="mysqldump --opt -B --add-drop-database --skip-extended-insert --user='${_user}' --host='${_host}' --password='${_pass}' ${database} | gzip"
+escape_commandline "${cmd}"
 
-ssh ${where} "nice -n 19 sh -c 'mysqldump ${options} --user=\"${_user}\" --host=\"${_host}\" --password=\"${_pass}\" ${database} | gzip'" > "${file}"
+ssh ${where} "nice -n 19 sh -c '${escaped}'" > "${file}"
+
 exit $?
