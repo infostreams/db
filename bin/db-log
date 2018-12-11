@@ -5,14 +5,25 @@ bin=$(dirname "$0")
 
 if [ "${3}" = "--help" ]; then
   echo "USAGE:"
-  echo "    ${COLOR_LIGHT_BLUE}db log${COLOR_NC}"
+  echo "    ${COLOR_LIGHT_BLUE}db log [server alias | all]${COLOR_NC}"
   echo ""
   echo "Prints a list of recorded database dumps"
   exit 1
 fi
 
+alias="${2}"
+all=0
+if [ "${3}" = "all" ]; then
+  all=1
+fi
+
 for s in ${servers}
 do
+  if [ "${all}" = "0" ]; then
+    if [ "${alias}" != "${s}" ]; then
+      continue;
+    fi
+  fi
   echo "[${COLOR_YELLOW}${s}${COLOR_NC}]"
 
   dumps="${repository}/${s}/dumps"
