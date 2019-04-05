@@ -15,6 +15,8 @@ database=$(cat "${database_file}")
 
 options="--no-data --add-drop-database"
 connection_details="--defaults-extra-file=${connection_config}"
+echo "SET GLOBAL FOREIGN_KEY_CHECKS=0;" | "${mysql}" ${connection_details} "${database}"
 "${mysqldump}" ${connection_details} ${options} "${database}" | grep 'DROP TABLE' | "${mysql}" ${connection_details} "${database}"
+echo "SET GLOBAL FOREIGN_KEY_CHECKS=1;" | "${mysql}" ${connection_details} "${database}"
 
 echo "${colored_alias}Nuked ${database}"
