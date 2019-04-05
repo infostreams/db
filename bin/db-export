@@ -9,7 +9,7 @@ find_snapshot_from_any_server "${snapshot}"
 
 if [ -z "${export_filename}" ]; then
   echo "USAGE:"
-  echo "    ${COLOR_LIGHT_BLUE}db export [snapshot] <path to output .sql file>${COLOR_NC}"
+  echo "    ${COLOR_LIGHT_BLUE}db export [server alias] [snapshot] <path to output .sql file>${COLOR_NC}"
   echo ""
   echo "Exports a database snapshot from the repository to a local file"
   exit 1
