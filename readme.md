@@ -191,7 +191,7 @@ that are in the snapshot.* If you want to completely empty your database first, 
 #### Syntax 
 
 ```shell 
-$ db load [server alias] [snapshot] <table_1> <table_2> <...> <table_n>
+$ db load [server alias] [snapshot] [--match MATCH] <table_1> <table_2> <...> <table_n>
 ```
  
 If you omit the **server alias** it will default to using the oldest server alias, in my case almost always **localhost**.
@@ -208,6 +208,13 @@ $ db load localhost e82a736789b421e7efd0ee2071bff33945a5fab6be08be6821a3f576 wp_
 
 You can provide more than one table to restore. If you don't provide any tables, it will load all the tables that
 are defined in the snapshot.
+
+You can also provide a regular expression to match the table name to restore. For example, to only restore tables
+whose name matches the regular expression ```wp_13_.*```, you can run the following command:
+
+```shell
+$ db load localhost e82a736789b421e7efd0ee2071bff33945a5fab6be08be6821a3f576 --match "wp_13_.*"
+```
 
 ### db remove
 
