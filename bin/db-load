@@ -10,9 +10,12 @@ database=$(cat "${database_file}")
 
 if [ "$#" -lt 3 ]; then
   echo "USAGE:"
-  echo "    ${COLOR_LIGHT_BLUE}db load [server alias] [snapshot] <table_1> <table_2> <...> <table_n>${COLOR_NC}"
+  echo "    ${COLOR_LIGHT_BLUE}db load [server alias] [snapshot] [--match MATCH] <table_1> <table_2> <...> <table_n>${COLOR_NC}"
   echo ""
   echo "Loads a database snapshot, or part of a snapshot, to a given server"
+  echo ""
+  echo "OPTIONS"
+  echo "    --match MATCH   Only loads tables whose name matches the regexp 'MATCH'"
   echo ""
   echo "${COLOR_RED}WARNING!! Will overwrite (parts of) the database on that server!${COLOR_NC}" # that's the point
   exit 1
@@ -31,7 +34,17 @@ fi
 if [ "$#" -gt 3 ]; then
   # restore individual tables
   shift 3
-  for table in "$@"; do
+
+  tables="$@"
+  if [ "$1" == '--match' ]; then
+    shift 1
+    echo "${colored_alias}Start restoring tables matching $1${COLOR_NC}"
+    extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
+    tables=$(gzcat "${file}" | ${extract} --listTables | grep -e "$1")
+  fi
+
+  for table in $tables; do
+    echo "Restoring table ${table}"
     code=""
 
     restore_table "${table}"
