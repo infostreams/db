@@ -170,7 +170,7 @@ rm_server()
 
 list_servers()
 {
-  find "${repository}" -type d -d 1 | rev | cut -d '/' -f 1 | rev
+  find "${repository}" -mindepth 1 -maxdepth 1 -type d | rev | cut -d '/' -f 1 | rev
 }
 
 if [ "${subcommand}" != "add" ] && [ "${subcommand}" != "rm" ] && [ "${subcommand}" != "list" ]; then

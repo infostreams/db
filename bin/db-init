@@ -23,7 +23,7 @@ if [ -z "${type}" ]; then
 else
   shift
 fi
-supported=$(find "${bin}/drivers" -type d -d 1 | rev | cut -d '/' -f 1 | rev)
+supported=$(find "${bin}/drivers" -mindepth 1 -maxdepth 1 -type d | rev | cut -d '/' -f 1 | rev)
 
 while true; do
   if [ "$#" -lt 3 ]; then

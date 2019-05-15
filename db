@@ -81,9 +81,9 @@ export bin="${installation_root}/bin"
 # Default server alias is the server that was added first. If no servers exist yet, use "localhost"
 alias="localhost"
 if [ -d "${project_root}/.db" ]; then
-  configs=$(find "${project_root}/.db" -type d -d 1 | wc -l)
+  configs=$(find "${project_root}/.db" -mindepth 1 -maxdepth 1 -type d | wc -l)
   if [ ${configs} -gt 0 ]; then
-    alias=$(find "${project_root}/.db" -type d -d 1 -print0 | xargs -0 ls -1drt | head -n 1 | rev | cut -f 1 -d '/' | rev)
+    alias=$(find "${project_root}/.db" -mindepth 1 -maxdepth 1 -print0 -type d | xargs -0 ls -1drt | head -n 1 | rev | cut -f 1 -d '/' | rev)
   else
     if [ "${command}" != "server" ] && [ "${subcommand}" != "add" ]; then
       echo "${COLOR_RED}No database servers defined!${COLOR_NC}"
