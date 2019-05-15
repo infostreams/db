@@ -1,8 +1,5 @@
 #!/usr/bin/env sh
 
-# Get the directory where the main script is installed
-installation_root=$(dirname $(python -c 'import os,sys;print(os.path.realpath(sys.argv[1]))' $0))
-
 # Get the project directory, i.e. the directory where the repository lives
 project_root="${1}"
 identifier="${2}"
