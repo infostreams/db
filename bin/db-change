@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-bin=$(dirname "$0")
+
 . "${bin}/include/all"
 
 if [ "$#" -gt 1 ]; then shift 2; fi

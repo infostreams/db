@@ -1,6 +1,5 @@
 #!/usr/bin/env sh
 
-bin=$(dirname "$0")
 . "${bin}/include/all"
 
 if [ "${3}" = "--help" ]; then

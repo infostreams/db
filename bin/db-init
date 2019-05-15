@@ -10,7 +10,7 @@ ctrl_c()
   exit 1
 }
 
-bin=$(dirname "$0")
+
 . "${bin}/include/all"
 
 if [ ! -d "${repository}" ]; then
