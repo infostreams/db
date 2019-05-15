@@ -11,9 +11,13 @@ _host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs)
 ssh ${where} "mysql --user=\"$_user\" --host=\"$_host\" --password=\"$_pass\" -e\"quit\" $database"
 code=${?}
 
-if [ "${code}" -eq 1 ]; then
-  echo "${COLOR_RED}Could not connect to database.${COLOR_NC}"
+if [ "${code}" -eq 127 ]; then
+  echo "${COLOR_RED}Could not find mysql binary.${COLOR_NC}"
 else
-  echo "${COLOR_GREEN}Successfully connected to database.${COLOR_NC}"
+    if [ "${code}" -eq 1 ]; then
+      echo "${COLOR_RED}Could not connect to database.${COLOR_NC}"
+    else
+      echo "${COLOR_GREEN}Successfully connected to database.${COLOR_NC}"
+    fi
 fi
 exit ${code}
