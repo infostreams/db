@@ -35,8 +35,8 @@ if [ "$#" -gt 3 ]; then
   # restore individual tables
   shift 3
 
-  tables="$@"
-  if [ "$1" == '--match' ]; then
+  tables=$*
+  if [ "$1" = '--match' ]; then
     shift 1
     echo "${colored_alias}Start restoring tables matching $1${COLOR_NC}"
     extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
