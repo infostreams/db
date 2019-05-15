@@ -29,7 +29,7 @@ do
   path_length=$(echo "${dumps}/" | wc -c)
   meta="${repository}/${s}/meta"
 
-  find "${dumps}" -print0 -type f | xargs -0 ls -1rt | sed -e 's/\.gz$//' | cut -c ${path_length}- | while read -r hash
+  find "${dumps}" -type f -print0 | xargs -0 ls -1rt | sed -e 's/\.gz$//' | cut -c ${path_length}- | while read -r hash
   do
     echo "${COLOR_NC}${hash}${COLOR_NC}"
 
