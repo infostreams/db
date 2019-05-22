@@ -30,7 +30,7 @@ change_charset()
 
   if [ "${code}" -eq 0 ]; then
     # Initial SQL ran successfully
-    run_sql "${output}"
+    run_sql "SET FOREIGN_KEY_CHECKS=0; ${output}; SET FOREIGN_KEY_CHECKS=1;"
 
     if [ "${code}" -eq 0 ]; then
       echo "${colored_alias}${COLOR_GREEN}Successfully changed character set to '${_charset}' and collation to '${_collation}'.${COLOR_NC}"
