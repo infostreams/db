@@ -17,11 +17,11 @@ find_snapshot_from_any_server "${snapshot}"
 
 if [ -f "${file}" ]; then
   extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
-  tables=$(gzcat "${file}" | ${extract} --listTables)
+  tables=$(gunzip -c "${file}" | ${extract} --listTables)
 
   for table in $tables
   do
-    gzcat "${file}" | ${extract} -t "${table}" | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | grep -v "INSERT INTO" | grep -v "^LOCK TABLES" | grep -v "^UNLOCK TABLES" | grep -v "^DROP"
+    gunzip -c "${file}" | ${extract} -t "${table}" | grep -v "^--" | grep -v "^/\*" | grep -v "^$" | grep -v "INSERT INTO" | grep -v "^LOCK TABLES" | grep -v "^UNLOCK TABLES" | grep -v "^DROP"
   done
   exit 0
 else

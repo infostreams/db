@@ -39,7 +39,7 @@ if [ "$#" -gt 3 ]; then
     shift 1
     echo "${colored_alias}Start restoring tables matching $1${COLOR_NC}"
     extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
-    tables=$(gzcat "${file}" | ${extract} --listTables | grep -e "$1")
+    tables=$(gunzip -c "${file}" | ${extract} --listTables | grep -e "$1")
   fi
 
   for table in $tables; do
