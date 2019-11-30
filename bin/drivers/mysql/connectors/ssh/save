@@ -12,8 +12,7 @@ _pass=$(printf %q $(cat "${connection_config}" | grep "^password" | cut -d '=' -
 _host=$(printf %q $(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs))
 
 cmd="mysqldump --opt -B --add-drop-database --skip-extended-insert --user='${_user}' --host='${_host}' --password='${_pass}' ${database} | gzip"
-escape_commandline "${cmd}"
 
-ssh ${where} "nice -n 19 sh -c '${escaped}'" > "${file}"
+ssh ${where} "nice -n 19 sh -c '${cmd}'" > "${file}"
 
 exit $?

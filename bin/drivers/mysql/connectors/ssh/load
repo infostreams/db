@@ -20,14 +20,13 @@ restore_table() {
   is_gzip="${?}"
 
   cmd="mysql --user='${_user}' --host='${_host}' --password='${_pass}' ${_database}"
-  escape_commandline "${cmd}"
 
   if [ "${is_gzip}" -eq 0 ]; then
     # this is a gzipped file
-    gunzip < "${file}" | "${extract}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
+    gunzip < "${file}" | "${extract}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${cmd}'"
   else
     # this is a regular .sql file
-    cat "${file}" | "${extract}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
+    cat "${file}" | "${extract}" -t "${table}" | ssh ${where} "nice -n 19 sh -c '${cmd}'"
   fi
 
   code="${?}"
@@ -49,14 +48,13 @@ restore_snapshot() {
   is_gzip="${?}"
 
   cmd="mysql --user='${_user}' --host='${_host}' --password='${_pass}' ${_database}"
-  escape_commandline "${cmd}"
 
   if [ "${is_gzip}" -eq 0 ]; then
     # this is a gzipped file
-    gunzip < "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
+    gunzip < "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c '${cmd}'"
   else
     # this is a regular .sql file
-    cat "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c '${escaped}'"
+    cat "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | ssh ${where} "nice -n 19 sh -c '${cmd}'"
   fi
 
   code="${?}"
