@@ -4,6 +4,7 @@ With DB you can very easily save, restore, and archive snapshots of your databas
 supports connecting to different database servers (for example a local development server and a staging or 
 production server) and allows you to load a database dump from one environment into another environment. 
 
+> For now, this is for MySQL only, but it could be extended to be used with other database systems as well.
 
 ## Examples 
 
@@ -84,6 +85,32 @@ fatal: Not a db repository (or any of the parent directories). Please run 'db in
 So, to really get started, go to a directory where you have a project that uses a database, and type 
 [```db init```](#db-init). This will start the process of setting up your database connection details, after which 
 the following commands will be available to you.
+
+### Additional configuration / different port or socket
+
+You can provide additional configuration for the MySQL connection by providing them in 
+[the options file](https://dev.mysql.com/doc/refman/5.7/en/option-files.html) that can be found at 
+```.db/<alias>/config/credentials.cnf```. Here you can provide a different port number or you can specify a socket
+to connect through, for example
+
+```ini
+[client]
+user = root
+password =
+host = 127.0.0.1
+port = 3307
+```
+
+to connect to a MySQL database on a port 3307 instead of the standard 3306, or
+
+```ini
+[client]
+user = root
+password =
+socket = /var/run/mysqld/mysql.sock
+```
+
+to connect to MySQL through a socket file located at ```/var/run/mysqld/mysql.sock```.
 
 ## Available commands 
 
