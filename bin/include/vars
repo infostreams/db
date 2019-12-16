@@ -25,7 +25,6 @@ if [ -f "${config}/connectiontype" ]; then
 fi
 
 ssh_config="${config}/ssh.cnf"
-pma_config="${config}/phpmyadmin.cnf"
 
 dumps="${repository}/${identifier}/dumps"
 meta="${repository}/${identifier}/meta"

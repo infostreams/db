@@ -190,9 +190,9 @@ $ db init
 > 
 > Please provide the connection details for the database 
 > Server alias []: 
-> Connection type, e.g. direct, ssh, or phpmyadmin []: 
+> Connection type, e.g. direct, or ssh []: 
 > SSH login, e.g. user@hostname.com []: 
-> Please provide the database host. For connection types SSH and phpMyAdmin, this is probably 127.0.0.1. 
+> Please provide the database host. For connection types SSH and direct, this is probably 127.0.0.1. 
 > Database host [127.0.0.1]: 
 > Username [root]: 
 > Password []: 
@@ -203,8 +203,6 @@ $ db init
 
 The password for your connection will be stored in plain text, in a file that only the current user has read-access to 
 (file mode 0600). Make sure to not commit this file (```.db/<server alias>/config/credentials.cnf```) to source control!
-
-The text mentions connection type ```phpmyadmin```, but it doesn't actually work. Don't use it.
 
 If you want to add a remote server, you need to have ssh access to it. It is best if you have setup passwordless access,
 otherwise it will ask you for your password every time you interact with the remote server. 
@@ -309,9 +307,9 @@ $ db server add
 > Please provide the connection details for the database 
 > 
 > Server alias []: production 
-> Connection type, e.g. direct, ssh, or phpmyadmin []: ssh 
+> Connection type, e.g. direct, or ssh []: ssh 
 > SSH login, e.g. user@hostname.com []: account@server.com
-> Please provide the database host. For connection types SSH and phpMyAdmin, this is probably 127.0.0.1. 
+> Please provide the database host. For connection types SSH and direct, this is probably 127.0.0.1. 
 > Database host [127.0.0.1]: 127.0.0.1 
 > Username [root]: user 
 > Password []: password
@@ -321,8 +319,6 @@ $ db server add
 ``` 
 
 This would have added a new server with the alias **production**, which you can then use to save and load snapshots. 
-
-The text mentions connection type ```phpmyadmin```, but it doesn't actually work. Don't use it.
 
 If you want to add a remote server, you need to have ssh access to it. It is best if you have setup passwordless access,
 otherwise it will ask you for your password every time you interact with the remote server. 
