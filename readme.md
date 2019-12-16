@@ -6,6 +6,31 @@ production server) and allows you to load a database dump from one environment i
 
 > For now, this is for MySQL only, but it could be extended to be used with other database systems as well.
 
+## Table of Contents
+- [Introduction](#introduction)
+- [Examples](#examples)
+- [Installation](#installation)
+  * [Additional configuration / different port or socket](#additional-configuration--different-port-or-socket)
+- [Available commands](#available-commands)
+  * [db init](#db-init)
+  * [db save](#db-save)
+  * [db load](#db-load)
+  * [db remove](#db-remove)
+  * [db server](#db-server)
+    + [db server add](#db-server-add)
+    + [db server remove](#db-server-remove)
+    + [db server list](#db-server-list)
+  * [db export](#db-export)
+  * [db import](#db-import)
+  * [db nuke](#db-nuke)
+  * [db log](#db-log)
+  * [db show](#db-show)
+  * [db structure](#db-structure)
+  * [db change](#db-change)
+    + [db change charset](#db-change-charset)
+    + [db change wordpress](#db-change-wordpress)
+  * [db test](#db-test)
+
 ## Examples 
 
 ```shell 
