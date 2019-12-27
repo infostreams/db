@@ -94,7 +94,8 @@ add_server()
           user_input "SSH login, e.g. user@hostname.com" "Please provide the username and host of the remote server" "${ssh}" 0
           ssh=${answer}
           ;;
-
+      esac
+      
       echo "Please provide the database host. For connection types SSH and direct, this is probably 127.0.0.1".
       user_input "Database host" "Please provide a database hostname" "127.0.0.1" 0
       host=${answer}
