@@ -82,7 +82,15 @@ See the full [list of available commands](#available-commands) to get a complete
 
 ## Installation 
 
-For now, you can only install ```db``` by cloning this repository:
+### MacOS
+On MacOS, you can install ```db``` with the [HomeBrew package manager](https://brew.sh/):
+
+```shell
+$ brew install db-vcs
+```
+
+### Linux / others
+On other operating systems, you can install ```db``` by cloning the repository:
 
 ```shell
 $ git clone https://www.github.com/infostreams/db
