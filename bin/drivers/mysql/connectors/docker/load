@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+
+_user=$(printf %q $(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs))
+_pass=$(printf %q $(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs))
+_host=$(printf %q $(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs))
+
+restore_table() {
+  table=$1
+
+  extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
+
+  file "${file}" | grep gzip > /dev/null
+  is_gzip="${?}"
+
+  if [ "${is_gzip}" -eq 0 ]; then
+    # this is a gzipped file
+    gunzip < "${file}" | "${extract}" -t "${table}" | docker exec -i "${docker_container}" mysql --user="${_user}" --host="${_host}" --password="${_pass}" "${database}"
+  else
+    # this is a regular .sql file
+    cat "${file}" | "${extract}" -t "${table}" | docker exec -i "${docker_container}" mysql --user="${_user}" --host="${_host}" --password="${_pass}" "${database}"
+  fi
+
+  code="${?}"
+}
+
+restore_snapshot() {
+  file "${file}" | grep gzip > /dev/null
+  is_gzip="${?}"
+
+  if [ "${is_gzip}" -eq 0 ]; then
+    # this is a gzipped file
+    gunzip < "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | docker exec -i "${docker_container}" mysql --user="${_user}" --host="${_host}" --password="${_pass}" "${database}"
+  else
+    # this is a regular .sql file
+    cat "${file}" | grep -v "DROP DATABASE"| grep -v "^CREATE DATABASE" | grep -v "^USE \`" | docker exec -i "${docker_container}" mysql --user="${_user}" --host="${_host}" --password="${_pass}" "${database}"
+  fi
+
+  code="${?}"
+}

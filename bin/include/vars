@@ -38,3 +38,8 @@ servers="localhost"
 if [ -d "${repository}" ]; then
   servers=$(find "${repository}" -mindepth 1 -maxdepth 1 -type d | xargs -n1 basename)
 fi
+
+# load connector specific variables, if defined
+if [ -f "${bin}/drivers/${databasetype}/connectors/${connectiontype}/vars" ]; then
+  . "${bin}/drivers/${databasetype}/connectors/${connectiontype}/vars"
+fi

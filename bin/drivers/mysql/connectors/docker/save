@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+. "${bin}/include/all"
+
+file=$3
+
+options="--opt -B --add-drop-database"
+
+_user=$(printf %q $(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs))
+_pass=$(printf %q $(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs))
+_host=$(printf %q $(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs))
+
+docker exec -i "${docker_container}" mysqldump --user="${_user}" --host="${_host}" --password="${_pass}" ${options} "${database}" | gzip > "${file}"
+exit $?

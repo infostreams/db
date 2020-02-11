@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+. "${bin}/include/all"
+
+connection_details="--defaults-extra-file=${connection_config}"
+
+_user=$(printf %q $(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs))
+_pass=$(printf %q $(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs))
+_host=$(printf %q $(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs))
+
+
+docker exec -i "${docker_container}" mysql --user="${_user}" --host="${_host}" --password="${_pass}" -e"quit" >/dev/null
+code=${?}
+
+if [ "${code}" -eq 127 ]; then
+  echo "${COLOR_RED}Could not find mysql binary.${COLOR_NC}"
+else
+    if [ "${code}" -eq 1 ]; then
+      echo "${COLOR_RED}Could not connect to database.${COLOR_NC}"
+    else
+      echo "${COLOR_GREEN}Successfully connected to database.${COLOR_NC}"
+    fi
+fi
+exit ${code}
