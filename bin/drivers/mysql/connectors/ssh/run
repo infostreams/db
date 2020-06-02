@@ -9,7 +9,8 @@ run_sql() {
   _user=$(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs)
   _pass=$(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs)
   _host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs)
-  output=$(ssh ${where} "echo \"$sql\" | mysql --user=\"$_user\" --host=\"$_host\" --password=\"$_pass\" $database --skip-column-names ")
+  _port=$(cat "${connection_config}" | grep "^port" | cut -d '=' -f 2 | xargs)
+
+  output=$(ssh ${where} "echo \"$sql\" | mysql --user=\"$_user\" --host=\"$_host\" --port=\"${_port}\" --password=\"$_pass\" $database --skip-column-names ")
   code=${?}
 }
-

@@ -12,6 +12,7 @@ restore_table() {
   _user=$(printf %q $(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs))
   _pass=$(printf %q $(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs))
   _host=$(printf %q $(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs))
+  _port=$(printf %q $(cat "${_credentials}" | grep "^port" | cut -d '=' -f 2 | xargs))
   _database=$(cat "${_db_file}")
 
   extract="${bin}/drivers/mysql/vendor/extract_sql/extract_sql.pl"
@@ -19,7 +20,7 @@ restore_table() {
   file "${file}" | grep gzip > /dev/null
   is_gzip="${?}"
 
-  cmd="mysql --user='${_user}' --host='${_host}' --password='${_pass}' ${_database}"
+  cmd="mysql --user='${_user}' --host='${_host}' --port='${_port}' --password='${_pass}' ${_database}"
 
   if [ "${is_gzip}" -eq 0 ]; then
     # this is a gzipped file
@@ -42,12 +43,13 @@ restore_snapshot() {
   _user=$(printf %q $(cat "${_credentials}" | grep "^user" | cut -d '=' -f 2 | xargs))
   _pass=$(printf %q $(cat "${_credentials}" | grep "^password" | cut -d '=' -f 2 | xargs))
   _host=$(printf %q $(cat "${_credentials}" | grep "^host" | cut -d '=' -f 2 | xargs))
+  _port=$(printf %q $(cat "${_credentials}" | grep "^port" | cut -d '=' -f 2 | xargs))
   _database=$(cat "${_db_file}")
 
   file "${file}" | grep gzip > /dev/null
   is_gzip="${?}"
 
-  cmd="mysql --user='${_user}' --host='${_host}' --password='${_pass}' ${_database}"
+  cmd="mysql --user='${_user}' --host='${_host}' --port='${_port}' --password='${_pass}' ${_database}"
 
   if [ "${is_gzip}" -eq 0 ]; then
     # this is a gzipped file
