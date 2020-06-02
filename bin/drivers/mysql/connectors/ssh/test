@@ -8,7 +8,9 @@ where=$(cat "${ssh_config}")
 _user=$(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs)
 _pass=$(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs)
 _host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs)
-ssh ${where} "mysql --user=\"$_user\" --host=\"$_host\" --password=\"$_pass\" -e\"quit\" $database"
+_port=$(cat "${connection_config}" | grep "^port" | cut -d '=' -f 2 | xargs)
+
+ssh ${where} "mysql --user=\"$_user\" --host=\"$_host\" --port=\"${_port}\" --password=\"$_pass\" -e\"quit\" $database"
 code=${?}
 
 if [ "${code}" -eq 127 ]; then

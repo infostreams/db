@@ -11,7 +11,7 @@ if [ -f "${repository}/databasetype" ]; then
   databasetype=$(cat "${repository}/databasetype")
 fi
 
-config="${repository}/${identifier}/config/"
+config="${repository}/${identifier}/config"
 database_file="${config}/database"
 
 database=""
