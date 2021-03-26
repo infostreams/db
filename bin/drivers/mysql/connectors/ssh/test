@@ -5,10 +5,10 @@
 connection_details="--defaults-extra-file=${connection_config}"
 
 where=$(cat "${ssh_config}")
-_user=$(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs)
-_pass=$(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs)
-_host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs)
-_port=$(cat "${connection_config}" | grep "^port" | cut -d '=' -f 2 | xargs)
+_user=$(printf %q $(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs))
+_pass=$(printf %q $(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs))
+_host=$(printf %q $(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs))
+_port=$(printf %q $(cat "${connection_config}" | grep "^port" | cut -d '=' -f 2 | xargs))
 
 ssh ${where} "mysql --user=\"$_user\" --host=\"$_host\" --port=\"${_port}\" --password=\"$_pass\" -e\"quit\" $database"
 code=${?}
