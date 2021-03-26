@@ -7,13 +7,17 @@ file=$3
 connection_details="--defaults-extra-file=${connection_config}"
 
 where=$(cat "${ssh_config}")
-_user=$(printf %q $(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs))
-_pass=$(printf %q $(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs))
-_host=$(printf %q $(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs))
-_port=$(printf %q $(cat "${connection_config}" | grep "^port" | cut -d '=' -f 2 | xargs))
+# We do NOT escape usernames etc here, because in the final command we will wrap them in single quotes (') which don't need escapes
+_user=$(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs | sed "s/'/''/g") # last part escapes ' to ''
+_pass=$(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs | sed "s/'/''/g")
+_host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs | sed "s/'/''/g")
+_port=$(cat "${connection_config}" | grep "^port" | cut -d '=' -f 2 | xargs | sed "s/'/''/g")
 
-cmd="mysqldump --opt -B --add-drop-database --skip-extended-insert --user='${_user}' --host='${_host}' --port='${_port}' --password='${_pass}' ${database} | gzip"
+dump='mysqldump --opt -B --add-drop-database --skip-extended-insert --user=''\$1'' --host=''\$2'' --port=''\$3'' --password=''\$4'' ''\$5'''
+cmd="nice -n 19 \"sh -c '${dump}' some_name '${_user}' '${_host}' '${_port}' '${_pass}' '${database}'\""
 
-ssh ${where} "nice -n 19 sh -c '${cmd}'" > "${file}"
+# somehow, somewhere, I messed up gzipping on the server. If I add it to the ${dump} command,
+# we end up with a broken .gz file. I don't know why.
+ssh ${where} ${cmd} | gzip > "${file}"
 
 exit $?
