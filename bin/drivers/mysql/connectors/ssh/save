@@ -13,8 +13,23 @@ _pass=$(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs 
 _host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs | sed "s/'/''/g")
 _port=$(cat "${connection_config}" | grep "^port" | cut -d '=' -f 2 | xargs | sed "s/'/''/g")
 
+# define mysqldump command
 dump='mysqldump --opt -B --add-drop-database --skip-extended-insert --user=''\$1'' --host=''\$2'' --port=''\$3'' --password=''\$4'' ''\$5'''
-cmd="nice -n 19 \"sh -c '${dump}' some_name '${_user}' '${_host}' '${_port}' '${_pass}' '${database}'\""
+
+# check if we have a 'normal' password or one that needs to be escaped
+_user_escaped=$(printf %q $_user)
+_pass_escaped=$(printf %q $_pass)
+
+# I am too stupid to write one command line that handles 'simple' and 'complicated' usernames and passwords at the
+# same time. Whichever version I write, something will break. Luckily I can figure out *when* it goes wrong, so I
+# will just work around it. Sorry.
+if [ "$_user_escaped$_pass_escaped" = "$_user$_pass" ]; then
+  # "Normal" passwords
+  cmd="nice -n 19 sh -c \"${dump}\" some_name '${_user}' '${_host}' '${_port}' '${_pass}' '${database}'"
+else
+  # "Complicated" passwords (that contain characters that are relevant for the shell)
+  cmd="nice -n 19 sh -c \"'${dump}' some_name '${_user}' '${_host}' '${_port}' '${_pass}' '${database}'\""
+fi
 
 # somehow, somewhere, I messed up gzipping on the server. If I add it to the ${dump} command,
 # we end up with a broken .gz file. I don't know why.
