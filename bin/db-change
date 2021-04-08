@@ -54,18 +54,18 @@ change_wordpress()
   database=$(cat "${database_file}")
 
   # get current ('old') site url
-  sql="SELECT \`option_value\` FROM ${database}.\`wp_options\` WHERE \`option_name\`=\"siteurl\";"
+  sql="SELECT \`option_value\` FROM \`${database}\`.\`wp_options\` WHERE \`option_name\`=\"siteurl\";"
   run_sql "${sql}"
   _prev_url=$output
 
   if [ "${code}" -eq 0 ]; then
     # set new site url
-    sql="USE ${database}; UPDATE \`wp_options\` SET \`option_value\`=\"${_new_url}\" WHERE \`option_name\` IN (\"siteurl\", \"home\");"
+    sql="USE \`${database}\`; UPDATE \`wp_options\` SET \`option_value\`=\"${_new_url}\" WHERE \`option_name\` IN (\"siteurl\", \"home\");"
     run_sql "${sql}"
 
     if [ "${code}" -eq 0 ]; then
       # replace old site url with new site url in content
-      sql="USE ${database}; UPDATE \`wp_posts\` SET \`post_content\` = REPLACE(\`post_content\`, '${_prev_url}', '${_new_url}')"
+      sql="USE \`${database}\`; UPDATE \`wp_posts\` SET \`post_content\` = REPLACE(\`post_content\`, '${_prev_url}', '${_new_url}')"
       run_sql "${sql}"
 
       if [ "${code}" -eq 0 ]; then
