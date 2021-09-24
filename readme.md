@@ -19,6 +19,7 @@ production server) and allows you to load a database dump from one environment i
   * [db server](#db-server)
     + [db server add](#db-server-add)
     + [db server remove](#db-server-remove)
+    + [db server show](#db-server-show)
     + [db server list](#db-server-list)
   * [db export](#db-export)
   * [db import](#db-import)
@@ -340,6 +341,16 @@ Removes a database server alias and all the snapshots. Does not do affect the ac
 
 ```
 $ db server remove [server alias]
+```
+
+#### db server show
+
+Shows the connection details for a database server alias.
+
+##### Syntax
+
+```
+$ db server show [server alias]
 ```
 
 #### db server list

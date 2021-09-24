@@ -158,7 +158,34 @@ list_servers()
   find "${repository}" -mindepth 1 -maxdepth 1 -type d | rev | cut -d '/' -f 1 | rev
 }
 
-if [ "${subcommand}" != "add" ] && [ "${subcommand}" != "rm" ] && [ "${subcommand}" != "list" ]; then
+show_server()
+{
+  _server=$1
+
+  _type=$(cat "${config}/connectiontype")
+
+  echo "${colored_alias}"
+  echo "${COLOR_LIGHT_BLUE}Connection${COLOR_NC}  ${_type}"
+
+  if [ -f "${ssh_config}" ]; then
+    _ssh=$(cat "${ssh_config}")
+    echo "${COLOR_LIGHT_BLUE}SSH command${COLOR_NC} ssh ${_ssh}"
+  fi
+
+  _user=$(cat "${connection_config}" | grep "^user" | cut -d '=' -f 2 | xargs)
+  _pass=$(cat "${connection_config}" | grep "^password" | cut -d '=' -f 2 | xargs)
+  _host=$(cat "${connection_config}" | grep "^host" | cut -d '=' -f 2 | xargs)
+  _port=$(cat "${connection_config}" | grep "^port" | cut -d '=' -f 2 | xargs)
+  echo "${COLOR_LIGHT_BLUE}Username${COLOR_NC}    ${_user}"
+  echo "${COLOR_LIGHT_BLUE}Password${COLOR_NC}    ${_pass}"
+  echo "${COLOR_LIGHT_BLUE}Hostname${COLOR_NC}    ${_host}"
+  echo "${COLOR_LIGHT_BLUE}Port${COLOR_NC}        ${_port}"
+
+  _database=$(cat "${config}/database")
+  echo "${COLOR_LIGHT_BLUE}Database${COLOR_NC}    ${_database}"
+}
+
+if [ "${subcommand}" != "add" ] && [ "${subcommand}" != "rm" ] && [ "${subcommand}" != "list" ] && [ "${subcommand}" != "show" ]; then
   echo "USAGE:"
   echo ""
   echo "  ${COLOR_LIGHT_BLUE}db server add (server alias) (ssh) (hostname) (port) (username) (password) (database)${COLOR_NC}"
@@ -168,6 +195,10 @@ if [ "${subcommand}" != "add" ] && [ "${subcommand}" != "rm" ] && [ "${subcomman
   echo "  ${COLOR_LIGHT_BLUE}db server rm [server alias]${COLOR_NC}"
   echo ""
   echo "      Removes a server and all its snapshots from the repository."
+  echo ""
+  echo "  ${COLOR_LIGHT_BLUE}db server show [server alias]${COLOR_NC}"
+  echo ""
+  echo "      Displays a server's configuration."
   echo ""
   echo "  ${COLOR_LIGHT_BLUE}db server list${COLOR_NC}"
   echo ""
@@ -183,6 +214,11 @@ case ${subcommand} in
 
   rm)
     rm_server "${server}"
+    exit 0
+    ;;
+
+  show)
+    show_server "${server}"
     exit 0
     ;;
 
